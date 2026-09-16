@@ -22,6 +22,7 @@
               "base": "www",
               "browser": ""
             },
+            "externalDependencies": ["crypto"],
             "index": "src/index.html",
             "polyfills": [],
             "tsConfig": "tsconfig.app.json",
@@ -73,6 +74,11 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "prebundle": {
+              "exclude": ["jeep-sqlite"]
+            }
+          },
           "configurations": {
             "production": {
               "buildTarget": "app:build:production"
@@ -115,7 +121,8 @@
     }
   },
   "cli": {
-    "schematicCollections": ["@ionic/angular-toolkit"]
+    "schematicCollections": ["@ionic/angular-toolkit"],
+    "analytics": false
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {
