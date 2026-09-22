@@ -6,18 +6,18 @@ export type OrigenAlimento = 'semilla' | 'openfoodfacts' | 'ocr' | 'manual';
 
 export interface Alimento {
   id: number;
-  codigoBarra: string | null;
+  codigoBarras: string | null;
   nombre: string;
   marca: string | null;
 
   kcal100g: number;
   proteina100g: number;
-  grasas100g: number;
+  grasa100g: number;
   carbohidrato100g: number;
 
   azucares100g: number;
-  saturados100g: number;
-  fibras100g: number;
+  saturadas100g: number;
+  fibra100g: number;
   sal100g: number;
 
   nombreUnidad: string | null;
@@ -27,7 +27,7 @@ export interface Alimento {
   tipoMedida: TipoMedida;
   kcalAlcohol100: number | null;
 
-  esEstivado: boolean;
+  esEstimado: boolean;
   origen: OrigenAlimento;
-  fechaCqahce: string | null;
+  fechaCache: string | null;
 }

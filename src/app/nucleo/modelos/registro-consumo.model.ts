@@ -13,9 +13,9 @@ export interface RegistroConsumo {
   unidadIntroducida: string;
 
   kcal: number;
-  proteinasG: number;
-  grasasG: number;
-  carboHidratosG: number;
+  proteinaG: number;
+  grasaG: number;
+  carboHidratoG: number;
 
   plantillaId: number | null;
   creadoEn: string;

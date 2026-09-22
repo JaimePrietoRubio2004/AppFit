@@ -1,9 +1,10 @@
 import { RegistroConsumo } from '../modelos/registro-consumo.model';
+import { InjectionToken } from '@angular/core';
 
-export type NuevoregistroConsumo = Omit<RegistroConsumo, 'id'>;
+export type NuevoRegistroConsumo = Omit<RegistroConsumo, 'id'>;
 
 export interface RegistroConsumoRepository {
-  guardar(registro: NuevoregistroConsumo): Promise<RegistroConsumo>;
+  guardar(registro: NuevoRegistroConsumo): Promise<RegistroConsumo>;
 
   obtenerPorDia(perfilId: number, fecha: string): Promise<RegistroConsumo[]>;
 
@@ -15,3 +16,6 @@ export interface RegistroConsumoRepository {
 
   eliminar(id: number): Promise<void>;
 }
+
+export const REGISTRO_CONSUMO_REPOSITORY =
+  new InjectionToken<RegistroConsumoRepository>('RegistroConsumoRepository');

@@ -72,21 +72,23 @@ CREATE INDEX IF NOT EXISTS idx_registro_consumo_perfil_fecha ON registro_consumo
 @Service()
 export class BaseDatos {
   private readonly sqlite = new SQLiteConnection(CapacitorSQLite);
-  private conexion: SQLiteDBConnection | null = null;
+  private conexionPromesa: Promise<SQLiteDBConnection> | null = null;
   private webListo: Promise<void> | null = null;
   private noEncriptado: string = 'no-encryption';
 
-  async obtenerConexion(): Promise<SQLiteDBConnection> {
-    if (this.conexion) {
-      return this.conexion;
+  obtenerConexion(): Promise<SQLiteDBConnection> {
+    if (!this.conexionPromesa) {
+      this.conexionPromesa = this.crearConexion();
     }
+    return this.conexionPromesa;
+  }
 
+  private async crearConexion(): Promise<SQLiteDBConnection> {
     if (Capacitor.getPlatform() === 'web') {
       await this.asegurarWebStore();
     }
-
     const yaAbierta = (await this.sqlite.isConnection(NOMBRE_DB, false)).result;
-    this.conexion = yaAbierta
+    const conexion = yaAbierta
       ? await this.sqlite.retrieveConnection(NOMBRE_DB, false)
       : await this.sqlite.createConnection(
           NOMBRE_DB,
@@ -95,11 +97,9 @@ export class BaseDatos {
           VERSION_ESQUEMA,
           false,
         );
-
-    await this.conexion.open();
-    await this.conexion.execute(ESQUEMA, true, false);
-
-    return this.conexion;
+    await conexion.open();
+    await conexion.execute(ESQUEMA, true, false);
+    return conexion;
   }
 
   private asegurarWebStore(): Promise<void> {
