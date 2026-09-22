@@ -9,6 +9,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'anadir-alimento',
+    loadComponent: () =>
+      import('./funcionalidades/anadir-alimento/anadir-alimento.component').then(
+        (m) => m.AnadirAlimentoComponent,
+      ),
+  },
+  {
+    path: 'detalle-alimento/:id',
+    loadComponent: () =>
+      import('./funcionalidades/detalle-alimento/detalle-alimento.component').then(
+        (m) => m.DetalleAlimentoComponent,
+      ),
+  },
+  {
     path: '',
     redirectTo: 'inicio',
     pathMatch: 'full',

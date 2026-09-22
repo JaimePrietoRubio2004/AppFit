@@ -1,12 +1,19 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonButton,
+} from '@ionic/angular';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 
 @Component({
   selector: 'app-inicio',
   templateUrl: './inicio.component.html',
   styleUrls: ['./inicio.component.scss'],
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent],
+  imports: [IonButton, IonHeader, IonToolbar, IonTitle, IonContent, RouterLink],
 })
 export class InicioComponent implements OnInit {
   private readonly perfilRepository = inject(PERFIL_REPOSITORY);

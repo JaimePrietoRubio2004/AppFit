@@ -1,1 +1,49 @@
-<p>detalle-alimento works!</p>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ alimento()?.nombre ?? "Cargando..." }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (alimento(); as a) {
+    <p>
+      Por 100 g : {{ a.kcal100g }} kcal * {{ a.proteina100g }} g proteina *
+      {{ a.grasa100g }} g grasas * {{ a.carbohidrato100g }} g hidratos
+    </p>
+
+    <ion-item>
+      <ion-label position="stacked">Cantidad (g)</ion-label>
+      <ion-input
+        type="number"
+        [value]="gramos()"
+        (ionInput)="actualizarGramos($event.detail.value)"
+      >
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Tipo de comida</ion-label>
+      <ion-select
+        [value]="tipoComida()"
+        (ionChange)="tipoComida.set($event.detail.value)"
+      >
+        <ion-select-option value="desayuno">Desayuno</ion-select-option>
+        <ion-select-option value="almuerzo">Almuerzo</ion-select-option>
+        <ion-select-option value="comida">Comida</ion-select-option>
+        <ion-select-option value="merienda">Merienda</ion-select-option>
+        <ion-select-option value="cena">Cena</ion-select-option>
+        <ion-select-option value="otro">Otro</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <p>
+      Ración ({{ gramos() }} g): {{ kcalRacion() | number: "1.0-0" }} kcal ·
+      {{ proteinaRacion() | number: "1.0-1" }} g proteína ·
+      {{ grasasRacion() | number: "1.0-1" }} g grasa ·
+      {{ carbohidratosRacion() | number: "1.0-1" }} g hidratos
+    </p>
+
+    <ion-button expand="block" (click)="guardar()"> Guardar</ion-button>
+  } @else {
+    <p>Cargando...</p>
+  }
+</ion-content>
