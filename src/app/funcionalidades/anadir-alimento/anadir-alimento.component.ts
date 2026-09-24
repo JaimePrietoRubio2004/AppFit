@@ -26,19 +26,24 @@ export class AnadirAlimentoComponent {
 
   async escanear(): Promise<void> {
     this.mensaje.set(null);
-    const resultadoEscaneo = await this.escanerCodigoBarras.escanear();
-    if (!resultadoEscaneo.escaneado) {
-      this.mensaje.set(this.mensajeEscaneo(resultadoEscaneo.motivo));
-      return;
+
+    try {
+      const resultadoEscaneo = await this.escanerCodigoBarras.escanear();
+      if (!resultadoEscaneo.escaneado) {
+        this.mensaje.set(this.mensajeEscaneo(resultadoEscaneo.motivo));
+        return;
+      }
+      const resolucion = await this.resolverAlimento.obtenerPorCodigoDeBarras(
+        resultadoEscaneo.codigo,
+      );
+      if (!resolucion.encontrado) {
+        this.mensaje.set(this.mensajeResolucion(resolucion.motivo));
+        return;
+      }
+      this.router.navigate(['/detalle-alimento', resolucion.alimento.id]);
+    } catch (error) {
+      this.mensaje.set(`Error inesperado: ${error}`);
     }
-    const resolucion = await this.resolverAlimento.obtenerPorCodigoDeBarras(
-      resultadoEscaneo.codigo,
-    );
-    if (!resolucion.encontrado) {
-      this.mensaje.set(this.mensajeResolucion(resolucion.motivo));
-      return;
-    }
-    this.router.navigate(['/detalle-alimento', resolucion.alimento.id]);
   }
 
   private mensajeEscaneo(

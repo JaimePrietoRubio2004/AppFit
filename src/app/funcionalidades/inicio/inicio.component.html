@@ -7,6 +7,13 @@
 <ion-content class="ion-padding">
   <p>Perfil activo: {{ textoPerfil() }}</p>
 
+  <p>
+    Hoy: {{ totalKcal() | number: "1.0-0" }} kcal ·
+    {{ totalProteina() | number: "1.0-1" }} g proteína ·
+    {{ totalGrasa() | number: "1.0-1" }} g grasa ·
+    {{ totalCarbohidrato() | number: "1.0-1" }} g hidratos
+  </p>
+
   <ion-button expand="block" routerLink="/anadir-alimento">
     Añadir alimento</ion-button
   >
