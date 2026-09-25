@@ -66,6 +66,14 @@ CREATE TABLE IF NOT EXISTS registro_consumo (
   creado_en TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS registro_peso (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  perfil_id INTEGER NOT NULL REFERENCES perfil(id),
+  fecha TEXT NOT NULL,
+  peso_kg REAL NOT NULL,
+  UNIQUE (perfil_id, fecha)
+);
+
 CREATE INDEX IF NOT EXISTS idx_registro_consumo_perfil_fecha ON registro_consumo (perfil_id, fecha);
 `;
 

@@ -19,6 +19,8 @@ import { REGISTRO_CONSUMO_REPOSITORY } from './app/nucleo/repositorios/registro-
 import { RegistroConsumoSqlite } from './app/nucleo/repositorios/registro-consumo-sqlite.repository';
 import { inject, Inject, provideAppInitializer } from '@angular/core';
 import { CatalogoSemilla } from './app/nucleo/servicios/catalogo-semilla';
+import { REGISTRO_PESO_REPOSITORY } from './app/nucleo/repositorios/registro-peso.repository';
+import { RegistroPesoSqlite } from './app/nucleo/repositorios/registro-peso-sqlite.repository';
 
 defineCustomElements(window);
 
@@ -34,5 +36,6 @@ bootstrapApplication(AppComponent, {
     { provide: PERFIL_REPOSITORY, useClass: PerfilSqlite },
     { provide: ALIMENTO_REPOSITORY, useClass: AlimentoSqlite },
     { provide: REGISTRO_CONSUMO_REPOSITORY, useClass: RegistroConsumoSqlite },
+    { provide: REGISTRO_PESO_REPOSITORY, useClass: RegistroPesoSqlite },
   ],
 });

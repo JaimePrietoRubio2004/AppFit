@@ -1,7 +1,7 @@
 export type Sexo = 'hombre' | 'mujer';
 
 export type NivelActividad =
-  'sedentario' | 'ligero' | 'moderado' | 'alto' | 'muy alto';
+  'sedentario' | 'ligero' | 'moderado' | 'alto' | 'muy_alto';
 
 export type ObjetivoCorporal = 'ganar_masa' | 'perder_grasa' | 'recomposicion';
 

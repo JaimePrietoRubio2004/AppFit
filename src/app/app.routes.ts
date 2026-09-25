@@ -23,6 +23,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'configuracion-inicial',
+    loadComponent: () =>
+      import('./funcionalidades/configuracion-inicial/configuracion-inicial.component').then(
+        (m) => m.ConfiguracionInicialComponent,
+      ),
+  },
+  {
     path: '',
     redirectTo: 'inicio',
     pathMatch: 'full',
