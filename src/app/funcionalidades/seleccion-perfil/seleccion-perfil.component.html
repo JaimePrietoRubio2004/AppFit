@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Elegir perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    @for (perfil of perfiles(); track perfil.id) {
+      <ion-item button (click)="elegir(perfil)">
+        <ion-label>
+          {{ perfil.nombre }}
+          @if (perfil.esUltimoUsado) {
+            <p>Último usado</p>
+          }
+        </ion-label>
+      </ion-item>
+    }
+  </ion-list>
+
+  <ion-button expand="block" (click)="nuevoPerfil()"
+    >Crear nuevo perfil</ion-button
+  >
+</ion-content>

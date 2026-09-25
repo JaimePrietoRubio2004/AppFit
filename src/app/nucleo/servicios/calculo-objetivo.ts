@@ -34,6 +34,7 @@ export interface DatosParaCalculo {
   fechaNacimiento: string;
   alturaCm: number;
   pesoKg: number;
+  pesoObjetivoKg: number | null;
   nivelActividad: NivelActividad;
   objetivo: ObjetivoCorporal;
   ritmoSemanalKg: number;
@@ -46,6 +47,7 @@ export interface ObjetivoCalculado {
   proteinaG: number;
   grasaG: number;
   carbohidratoG: number;
+  semanasEstimadas: number | null;
   limiteAplicado:
     'ninguno' | 'deficit_maximo' | 'suelo_absoluto' | 'metabolismo_basal';
 }
@@ -71,11 +73,25 @@ function calcularImc(pesoKg: number, alturaCm: number): number {
   return pesoKg / (alturaM * alturaM);
 }
 
+function calcularSemanasEstimadas(
+  pesoActual: number,
+  pesoObjetivo: number | null,
+  ritmoSemanalKg: number,
+): number | null {
+  if (pesoObjetivo === null || ritmoSemanalKg === 0) {
+    return null;
+  }
+  return Math.abs(pesoActual - pesoObjetivo) / Math.abs(ritmoSemanalKg);
+}
+
 @Service()
 export class CalculoObjetivo {
   calcular(datos: DatosParaCalculo): ResultadoCalculadoObjetivo {
-    const imc = calcularImc(datos.pesoKg, datos.alturaCm);
-    if (datos.objetivo === 'perder_grasa' && imc < 18.5) {
+    const imcRelevante =
+      datos.pesoObjetivoKg !== null
+        ? calcularImc(datos.pesoObjetivoKg, datos.alturaCm)
+        : calcularImc(datos.pesoKg, datos.alturaCm);
+    if (datos.objetivo === 'perder_grasa' && imcRelevante < 18.5) {
       return { calculado: false, motivo: 'imc_bajo_para_perder_grasa' };
     }
 
@@ -98,6 +114,15 @@ export class CalculoObjetivo {
     const kcalRestantes = kcalObjetivo - proteinaG * 4 - grasaG * 9;
     const carbohidratoG = Math.max(0, kcalRestantes / 4);
 
+    const semanasEstimadas =
+      datos.objetivo === 'recomposicion'
+        ? null
+        : calcularSemanasEstimadas(
+            datos.pesoKg,
+            datos.pesoObjetivoKg,
+            datos.ritmoSemanalKg,
+          );
+
     return {
       calculado: true,
       objetivo: {
@@ -107,6 +132,7 @@ export class CalculoObjetivo {
         proteinaG,
         grasaG,
         carbohidratoG,
+        semanasEstimadas,
         limiteAplicado,
       },
     };

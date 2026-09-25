@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS perfil (
   nivel_actividad TEXT NOT NULL CHECK (nivel_actividad IN ('sedentario', 'ligero', 'moderado', 'alto', 'muy_alto')),
   objetivo TEXT NOT NULL CHECK (objetivo IN ('ganar_masa', 'perder_grasa', 'recomposicion')),
   ritmo_semanal_kg REAL NOT NULL,
+  peso_objetivo_kg REAL,
   fecha_alta TEXT NOT NULL
 );
 
@@ -51,7 +52,7 @@ CREATE TABLE IF NOT EXISTS alimento (
 
 CREATE TABLE IF NOT EXISTS registro_consumo (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  perfil_id INTEGER NOT NULL REFERENCES perfil(id),
+  perfil_id INTEGER NOT NULL REFERENCES perfil(id) ON DELETE CASCADE,
   fecha TEXT NOT NULL,
   tipo_comida TEXT NOT NULL CHECK (tipo_comida IN ('desayuno', 'almuerzo', 'comida', 'merienda', 'cena', 'otro')),
   alimento_id INTEGER NOT NULL REFERENCES alimento(id),
@@ -68,7 +69,7 @@ CREATE TABLE IF NOT EXISTS registro_consumo (
 
 CREATE TABLE IF NOT EXISTS registro_peso (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  perfil_id INTEGER NOT NULL REFERENCES perfil(id),
+  perfil_id INTEGER NOT NULL REFERENCES perfil(id) ON DELETE CASCADE,
   fecha TEXT NOT NULL,
   peso_kg REAL NOT NULL,
   UNIQUE (perfil_id, fecha)

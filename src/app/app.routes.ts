@@ -1,8 +1,10 @@
 import { Routes } from '@angular/router';
+import { ArranqueGuards } from './nucleo/guardias/arranque.guards';
 
 export const routes: Routes = [
   {
     path: 'inicio',
+    canActivate: [ArranqueGuards],
     loadComponent: () =>
       import('./funcionalidades/inicio/inicio.component').then(
         (m) => m.InicioComponent,
@@ -27,6 +29,20 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./funcionalidades/configuracion-inicial/configuracion-inicial.component').then(
         (m) => m.ConfiguracionInicialComponent,
+      ),
+  },
+  {
+    path: 'seleccion-perfil',
+    loadComponent: () =>
+      import('./funcionalidades/seleccion-perfil/seleccion-perfil.component').then(
+        (m) => m.SeleccionPerfilComponent,
+      ),
+  },
+  {
+    path: 'ajustes',
+    loadComponent: () =>
+      import('./funcionalidades/ajustes/ajustes.component').then(
+        (m) => m.AjustesComponent,
       ),
   },
   {

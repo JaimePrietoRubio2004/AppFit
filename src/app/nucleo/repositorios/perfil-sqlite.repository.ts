@@ -15,6 +15,7 @@ interface FilaPerfil {
   nivel_actividad: Perfil['nivelActividad'];
   objetivo: Perfil['objetivo'];
   ritmo_semanal_kg: number;
+  peso_objetivo_kg: number | null;
   fecha_alta: string;
 }
 
@@ -30,6 +31,7 @@ function filaAPerfil(fila: FilaPerfil): Perfil {
     nivelActividad: fila.nivel_actividad,
     objetivo: fila.objetivo,
     ritmoSemanalKg: fila.ritmo_semanal_kg,
+    pesoObjetivoKg: fila.peso_objetivo_kg,
     fechaAlta: fila.fecha_alta,
   };
 }
@@ -42,8 +44,8 @@ export class PerfilSqlite implements PerfilRepository {
     const db = await this.baseDatos.obtenerConexion();
     const resultado = await db.run(
       `INSERT INTO perfil
-        (nombre, color_avatar, es_ultimo_usado, sexo, fecha_nacimiento, altura_cm, nivel_actividad, objetivo, ritmo_semanal_kg, fecha_alta)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (nombre, color_avatar, es_ultimo_usado, sexo, fecha_nacimiento, altura_cm, nivel_actividad, objetivo, ritmo_semanal_kg, peso_objetivo_kg ,fecha_alta)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         perfil.nombre,
         perfil.colorAvatar,
@@ -54,6 +56,7 @@ export class PerfilSqlite implements PerfilRepository {
         perfil.nivelActividad,
         perfil.objetivo,
         perfil.ritmoSemanalKg,
+        perfil.pesoObjetivoKg,
         perfil.fechaAlta,
       ],
     );
@@ -69,7 +72,7 @@ export class PerfilSqlite implements PerfilRepository {
     await db.run(
       `UPDATE perfil SET
         nombre = ?, color_avatar = ?, es_ultimo_usado = ?, sexo = ?, fecha_nacimiento = ?,
-        altura_cm = ?, nivel_actividad = ?, objetivo = ?, ritmo_semanal_kg = ?, fecha_alta = ?
+        altura_cm = ?, nivel_actividad = ?, objetivo = ?, ritmo_semanal_kg = ?, peso_objetivo_kg = ? ,fecha_alta = ?
        WHERE id = ?`,
       [
         perfil.nombre,
@@ -81,6 +84,7 @@ export class PerfilSqlite implements PerfilRepository {
         perfil.nivelActividad,
         perfil.objetivo,
         perfil.ritmoSemanalKg,
+        perfil.pesoObjetivoKg,
         perfil.fechaAlta,
         perfil.id,
       ],

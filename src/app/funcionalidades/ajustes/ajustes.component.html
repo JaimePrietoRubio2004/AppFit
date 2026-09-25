@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Ajustes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (perfilActual(); as perfil) {
+    <p>Perfil activo: {{ perfil.nombre }}</p>
+  }
+
+  <ion-button expand="block" (click)="irASeleccionPerfil()"
+    >Cambiar de perfil</ion-button
+  >
+
+  <ion-button
+    expand="block"
+    color="danger"
+    [disabled]="!puedeEliminar()"
+    (click)="eliminarPerfil()"
+  >
+    Eliminar este perfil
+  </ion-button>
+</ion-content>

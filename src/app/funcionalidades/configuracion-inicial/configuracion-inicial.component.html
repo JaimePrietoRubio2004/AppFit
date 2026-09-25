@@ -102,6 +102,15 @@
             (ngModelChange)="ritmoSemanalKgTexto.set(aTexto($event))"
           ></ion-input>
         </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Peso objetivo (kg, opcional)</ion-label>
+          <ion-input
+            type="number"
+            [ngModel]="pesoObjetivoKgTexto()"
+            (ngModelChange)="pesoObjetivoKgTexto.set(aTexto($event))"
+          ></ion-input>
+        </ion-item>
       }
     </ion-list>
 
@@ -131,6 +140,13 @@
           {{ r.objetivo.carbohidratoG | number: "1.0-1" }} g hidratos
         </p>
 
+        @if (r.objetivo.semanasEstimadas !== null) {
+          <p>
+            Estimado: {{ r.objetivo.semanasEstimadas | number: "1.0-1" }}
+            semanas para llegar a tu peso objetivo.
+          </p>
+        }
+
         @if (r.objetivo.limiteAplicado !== "ninguno") {
           <ion-text color="medium">
             <p>
@@ -144,6 +160,9 @@
         <ion-button expand="block" fill="outline" (click)="atras()"
           >Atrás</ion-button
         >
+        @if (mensaje()) {
+          <p>{{ mensaje() }}</p>
+        }
         <ion-button expand="block" (click)="confirmar()">Confirmar</ion-button>
       } @else {
         <p>

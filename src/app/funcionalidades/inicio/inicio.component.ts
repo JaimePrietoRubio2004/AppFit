@@ -8,14 +8,17 @@ import {
   IonContent,
   IonButton,
   ViewWillEnter,
+  IonButtons,
 } from '@ionic/angular';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { REGISTRO_CONSUMO_REPOSITORY } from '../../nucleo/repositorios/registro-consumo.repository';
+
 @Component({
   selector: 'app-inicio',
   templateUrl: './inicio.component.html',
   styleUrls: ['./inicio.component.scss'],
   imports: [
+    IonButtons,
     IonButton,
     IonHeader,
     IonToolbar,
@@ -46,21 +49,9 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   }
 
   private async cargar() {
-    let actual = await this.perfilRepository.obtenerUltimoUsado();
-
+    const actual = await this.perfilRepository.obtenerUltimoUsado();
     if (!actual) {
-      actual = await this.perfilRepository.crear({
-        nombre: 'Perfil de prueba',
-        colorAvatar: '#0F766E',
-        esUltimoUsado: true,
-        sexo: 'hombre',
-        fechaNacimiento: '2000-01-01',
-        alturaCm: 175,
-        nivelActividad: 'moderado',
-        objetivo: 'recomposicion',
-        ritmoSemanalKg: 0,
-        fechaAlta: new Date().toISOString(),
-      });
+      return;
     }
     this.textoPerfil.set(`${actual.nombre} (id ${actual.id})`);
 

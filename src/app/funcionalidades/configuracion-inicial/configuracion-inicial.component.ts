@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
+import { ViewWillEnter } from '@ionic/angular';
 import { Router } from '@angular/router';
 import {
   IonHeader,
@@ -51,7 +52,20 @@ const COLOR_AVATAR_POR_DEFECTO = '#0F766E';
     DecimalPipe,
   ],
 })
-export class ConfiguracionInicialComponent {
+export class ConfiguracionInicialComponent implements ViewWillEnter {
+  ionViewWillEnter(): void {
+    this.paso.set(1);
+    this.nombre.set('');
+    this.sexo.set('hombre');
+    this.fechaNacimiento.set('');
+    this.alturaCmTexto.set('');
+    this.pesoKgTexto.set('');
+    this.nivelActividad.set('moderado');
+    this.objetivo.set('recomposicion');
+    this.ritmoSemanalKgTexto.set('');
+    this.pesoObjetivoKgTexto.set('');
+    this.mensaje.set(null);
+  }
   private readonly perfilRepository = inject(PERFIL_REPOSITORY);
   private readonly registroPesoRepository = inject(REGISTRO_PESO_REPOSITORY);
   private readonly calculoObjetivo = inject(CalculoObjetivo);
@@ -67,6 +81,8 @@ export class ConfiguracionInicialComponent {
   protected readonly nivelActividad = signal<NivelActividad>('moderado');
   protected readonly objetivo = signal<ObjetivoCorporal>('recomposicion');
   protected readonly ritmoSemanalKgTexto = signal('');
+  protected readonly pesoObjetivoKgTexto = signal('');
+  protected readonly mensaje = signal<string | null>(null);
 
   private readonly alturaCmNumero = computed(() => {
     const n = Number(this.alturaCmTexto());
@@ -81,6 +97,11 @@ export class ConfiguracionInicialComponent {
   private readonly ritmoSemanalKgNumero = computed(() => {
     const n = Number(this.ritmoSemanalKgTexto());
     return Number.isNaN(n) ? 0 : n;
+  });
+
+  private readonly pesoObjetivoKgNumero = computed(() => {
+    const n = Number(this.pesoObjetivoKgTexto());
+    return this.pesoObjetivoKgTexto() !== '' && !Number.isNaN(n) ? n : null;
   });
 
   protected readonly paso1Valido = computed(
@@ -106,6 +127,7 @@ export class ConfiguracionInicialComponent {
         nivelActividad: this.nivelActividad(),
         objetivo: this.objetivo(),
         ritmoSemanalKg: this.ritmoSemanalKgNumero(),
+        pesoObjetivoKg: this.pesoObjetivoKgNumero(),
       });
     },
   );
@@ -129,24 +151,31 @@ export class ConfiguracionInicialComponent {
     if (!resultado || !resultado.calculado) {
       return;
     }
-    const fechaHoy = new Date().toISOString().slice(0, 10);
-    const perfil = await this.perfilRepository.crear({
-      nombre: this.nombre(),
-      colorAvatar: COLOR_AVATAR_POR_DEFECTO,
-      esUltimoUsado: true,
-      sexo: this.sexo(),
-      fechaNacimiento: this.fechaNacimiento(),
-      alturaCm: this.alturaCmNumero()!,
-      nivelActividad: this.nivelActividad(),
-      objetivo: this.objetivo(),
-      ritmoSemanalKg: this.ritmoSemanalKgNumero(),
-      fechaAlta: fechaHoy,
-    });
-    await this.registroPesoRepository.crear({
-      perfilId: perfil.id,
-      fecha: fechaHoy,
-      pesoKg: this.pesoKgNumero()!,
-    });
-    this.router.navigate(['/inicio']);
+    this.mensaje.set(null);
+    try {
+      const fechaHoy = new Date().toISOString().slice(0, 10);
+      const perfil = await this.perfilRepository.crear({
+        nombre: this.nombre(),
+        colorAvatar: COLOR_AVATAR_POR_DEFECTO,
+        esUltimoUsado: true,
+        sexo: this.sexo(),
+        fechaNacimiento: this.fechaNacimiento(),
+        alturaCm: this.alturaCmNumero()!,
+        nivelActividad: this.nivelActividad(),
+        objetivo: this.objetivo(),
+        pesoObjetivoKg: this.pesoObjetivoKgNumero(),
+        ritmoSemanalKg: this.ritmoSemanalKgNumero(),
+        fechaAlta: fechaHoy,
+      });
+      await this.perfilRepository.marcarComoUltimoUsado(perfil.id);
+      await this.registroPesoRepository.crear({
+        perfilId: perfil.id,
+        fecha: fechaHoy,
+        pesoKg: this.pesoKgNumero()!,
+      });
+      this.router.navigate(['/inicio']);
+    } catch (error) {
+      this.mensaje.set(`Error al guardar: ${error}`);
+    }
   }
 }

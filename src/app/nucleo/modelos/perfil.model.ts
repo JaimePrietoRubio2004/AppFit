@@ -16,5 +16,6 @@ export interface Perfil {
   nivelActividad: NivelActividad;
   objetivo: ObjetivoCorporal;
   ritmoSemanalKg: number;
+  pesoObjetivoKg: number | null;
   fechaAlta: string;
 }
