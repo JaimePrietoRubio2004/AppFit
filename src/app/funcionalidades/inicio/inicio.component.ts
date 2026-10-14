@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import {
@@ -7,9 +7,12 @@ import {
   IonTitle,
   IonContent,
   IonButton,
-  ViewWillEnter,
   IonButtons,
+  IonProgressBar,
+  ViewWillEnter,
 } from '@ionic/angular';
+import { ObjetivoPerfil } from '../../nucleo/servicios/objetivo-perfil';
+import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { REGISTRO_CONSUMO_REPOSITORY } from '../../nucleo/repositorios/registro-consumo.repository';
 
@@ -26,6 +29,7 @@ import { REGISTRO_CONSUMO_REPOSITORY } from '../../nucleo/repositorios/registro-
     IonContent,
     RouterLink,
     DecimalPipe,
+    IonProgressBar,
   ],
 })
 export class InicioComponent implements OnInit, ViewWillEnter {
@@ -33,7 +37,9 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   private readonly registroConsumoRepository = inject(
     REGISTRO_CONSUMO_REPOSITORY,
   );
+  private readonly objetivoPerfil = inject(ObjetivoPerfil);
 
+  protected readonly objetivo = signal<ObjetivoCalculado | null>(null);
   protected readonly textoPerfil = signal('cargando...');
   protected readonly totalKcal = signal(0);
   protected readonly totalProteina = signal(0);
@@ -48,12 +54,18 @@ export class InicioComponent implements OnInit, ViewWillEnter {
     await this.cargar();
   }
 
+  protected readonly fraccionKcal = computed(() => {
+    const objetivo = this.objetivo();
+    return objetivo ? Math.min(this.totalKcal() / objetivo.kcalObjetivo, 1) : 0;
+  });
+
   private async cargar() {
     const actual = await this.perfilRepository.obtenerUltimoUsado();
     if (!actual) {
       return;
     }
     this.textoPerfil.set(`${actual.nombre} (id ${actual.id})`);
+    this.objetivo.set(await this.objetivoPerfil.obtener(actual));
 
     const hoy = new Date().toISOString().slice(0, 10);
     const registros = await this.registroConsumoRepository.obtenerPorDia(

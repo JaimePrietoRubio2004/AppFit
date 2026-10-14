@@ -1,2 +1,14 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+:root {
+  --app-macro-proteina: #4c6fff;
+  --app-macro-grasa: #e08c2c;
+  --app-macro-carbohidrato: #8b5cf6;
+  --app-estado-superado: #b4791f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --app-macro-proteina: #7c97ff;
+    --app-macro-grasa: #f2ab55;
+    --app-macro-carbohidrato: #a78bfa;
+  }
+}
