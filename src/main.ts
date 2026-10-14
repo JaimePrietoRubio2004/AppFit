@@ -21,6 +21,7 @@ import { inject, Inject, provideAppInitializer } from '@angular/core';
 import { CatalogoSemilla } from './app/nucleo/servicios/catalogo-semilla';
 import { REGISTRO_PESO_REPOSITORY } from './app/nucleo/repositorios/registro-peso.repository';
 import { RegistroPesoSqlite } from './app/nucleo/repositorios/registro-peso-sqlite.repository';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 defineCustomElements(window);
 
@@ -33,6 +34,7 @@ bootstrapApplication(AppComponent, {
       withPreloading(PreloadAllModules),
       withComponentInputBinding(),
     ),
+    provideCharts(withDefaultRegisterables()),
     { provide: PERFIL_REPOSITORY, useClass: PerfilSqlite },
     { provide: ALIMENTO_REPOSITORY, useClass: AlimentoSqlite },
     { provide: REGISTRO_CONSUMO_REPOSITORY, useClass: RegistroConsumoSqlite },

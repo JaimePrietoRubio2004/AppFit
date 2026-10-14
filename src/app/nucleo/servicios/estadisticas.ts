@@ -2,7 +2,6 @@ import { inject, Service } from '@angular/core';
 import { REGISTRO_CONSUMO_REPOSITORY } from '../repositorios/registro-consumo.repository';
 import { REGISTRO_PESO_REPOSITORY } from '../repositorios/registro-peso.repository';
 import { sumarDias } from '../utilidades/fecha';
-import { map } from 'rxjs';
 
 const VENTANA_DIAS = 7;
 

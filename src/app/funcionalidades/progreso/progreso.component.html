@@ -74,4 +74,30 @@
   @if (mensaje()) {
     <p>{{ mensaje() }}</p>
   }
+
+  <h2>Evolución (28 días)</h2>
+
+  <h3>Calorías, media de 7 días</h3>
+  <div class="grafica">
+    <canvas
+      baseChart
+      role="img"
+      aria-label="Calorías diarias en media móvil de 7 días frente al objetivo"
+      [type]="'line'"
+      [data]="datosKcal()"
+      [options]="opciones"
+    ></canvas>
+  </div>
+
+  <h3>Peso, media de 7 días</h3>
+  <div class="grafica">
+    <canvas
+      baseChart
+      role="img"
+      aria-label="Peso en media móvil de 7 días"
+      [type]="'line'"
+      [data]="datosPeso()"
+      [options]="opciones"
+    ></canvas>
+  </div>
 </ion-content>
