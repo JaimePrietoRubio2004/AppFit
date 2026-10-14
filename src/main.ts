@@ -17,11 +17,11 @@ import { ALIMENTO_REPOSITORY } from './app/nucleo/repositorios/alimento.reposito
 import { AlimentoSqlite } from './app/nucleo/repositorios/alimento-sqlite.repository';
 import { REGISTRO_CONSUMO_REPOSITORY } from './app/nucleo/repositorios/registro-consumo.repository';
 import { RegistroConsumoSqlite } from './app/nucleo/repositorios/registro-consumo-sqlite.repository';
-import { inject, Inject, provideAppInitializer } from '@angular/core';
-import { CatalogoSemilla } from './app/nucleo/servicios/catalogo-semilla';
 import { REGISTRO_PESO_REPOSITORY } from './app/nucleo/repositorios/registro-peso.repository';
 import { RegistroPesoSqlite } from './app/nucleo/repositorios/registro-peso-sqlite.repository';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { PERFIL_ALIMENTO_REPOSITORY } from './app/nucleo/repositorios/perfil-alimento.repository';
+import { PerfilAlimentoSqlite } from './app/nucleo/repositorios/perfil-alimento-sqlite.repository';
 
 defineCustomElements(window);
 
@@ -39,5 +39,6 @@ bootstrapApplication(AppComponent, {
     { provide: ALIMENTO_REPOSITORY, useClass: AlimentoSqlite },
     { provide: REGISTRO_CONSUMO_REPOSITORY, useClass: RegistroConsumoSqlite },
     { provide: REGISTRO_PESO_REPOSITORY, useClass: RegistroPesoSqlite },
+    { provide: PERFIL_ALIMENTO_REPOSITORY, useClass: PerfilAlimentoSqlite },
   ],
 });

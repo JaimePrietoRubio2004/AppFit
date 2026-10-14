@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader,
@@ -10,12 +10,15 @@ import {
   IonList,
   IonItem,
   IonLabel,
+  ViewWillEnter,
 } from '@ionic/angular';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
 import { Alimento } from '../../nucleo/modelos/alimento.model';
 import { EscanerCodigoBarras } from '../../nucleo/servicios/escaner-codigo-barras';
 import { ResolverAlimento } from '../../nucleo/servicios/resolver-alimento';
+import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
+import { PERFIL_ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/perfil-alimento.repository';
 
 @Component({
   selector: 'app-anadir-alimento',
@@ -32,17 +35,32 @@ import { ResolverAlimento } from '../../nucleo/servicios/resolver-alimento';
     IonList,
     IonItem,
     IonLabel,
+    NgTemplateOutlet,
   ],
 })
-export class AnadirAlimentoComponent {
+export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
   private readonly escanerCodigoBarras = inject(EscanerCodigoBarras);
   private readonly resolverAlimento = inject(ResolverAlimento);
   private readonly router = inject(Router);
   private readonly alimentoRepository = inject(ALIMENTO_REPOSITORY);
+  private readonly perfilRepository = inject(PERFIL_REPOSITORY);
+  private readonly perfilAlimentoRepository = inject(
+    PERFIL_ALIMENTO_REPOSITORY,
+  );
 
   protected readonly textoBusqueda = signal('');
   protected readonly resultados = signal<Alimento[]>([]);
   protected readonly mensaje = signal<string | null>(null);
+  protected readonly favoritos = signal<Alimento[]>([]);
+  protected readonly masUsados = signal<Alimento[]>([]);
+
+  async ionViewWillEnter(): Promise<void> {
+    await this.cargarListas();
+  }
+
+  async ngOnInit(): Promise<void> {
+    await this.cargarListas();
+  }
 
   async escanear(): Promise<void> {
     this.mensaje.set(null);
@@ -81,6 +99,23 @@ export class AnadirAlimentoComponent {
 
   abrir(alimento: Alimento): void {
     this.router.navigate(['/detalle-alimento', alimento.id]);
+  }
+
+  private async cargarListas(): Promise<void> {
+    const perfil = await this.perfilRepository.obtenerUltimoUsado();
+    if (!perfil) {
+      return;
+    }
+    const favoritos = await this.perfilAlimentoRepository.listarFavorito(
+      perfil.id,
+    );
+    const idsFavoritos = new Set(favoritos.map((a) => a.id));
+    const masUsados = await this.perfilAlimentoRepository.listarMasUsado(
+      perfil.id,
+      10,
+    );
+    this.favoritos.set(favoritos);
+    this.masUsados.set(masUsados.filter((a) => !idsFavoritos.has(a.id)));
   }
 
   private mensajeEscaneo(

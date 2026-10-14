@@ -22,6 +22,7 @@ import {
 import { Alimento } from '../../nucleo/modelos/alimento.model';
 import { TipoComida } from '../../nucleo/modelos/registro-consumo.model';
 import { fechaLocal } from '../../nucleo/utilidades/fecha';
+import { PERFIL_ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/perfil-alimento.repository';
 
 @Component({
   selector: 'app-detalle-alimento',
@@ -49,10 +50,14 @@ export class DetalleAlimentoComponent implements OnInit {
   private readonly registroConsumoRepository = inject(
     REGISTRO_CONSUMO_REPOSITORY,
   );
+  private readonly perfilAlimentoRepository = inject(
+    PERFIL_ALIMENTO_REPOSITORY,
+  );
 
   protected readonly alimento = signal<Alimento | null>(null);
   protected readonly gramos = signal(100);
   protected readonly tipoComida = signal<TipoComida>('comida');
+  protected readonly esFavorito = signal(false);
 
   protected readonly kcalRacion = computed(() =>
     this.paraRacion((a) => a.kcal100g),
@@ -69,12 +74,39 @@ export class DetalleAlimentoComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.alimento.set(await this.alimentoRepository.obtenerPorId(id));
+    const alimento = await this.alimentoRepository.obtenerPorId(id);
+    this.alimento.set(alimento);
+
+    const perfil = await this.perfilRepository.obtenerUltimoUsado();
+    if (!alimento || !perfil) {
+      return;
+    }
+    const uso = await this.perfilAlimentoRepository.obtener(
+      perfil.id,
+      alimento.id,
+    );
+    this.esFavorito.set(uso?.esFavorito ?? false);
+    if (uso?.ultimaCantidad && uso.ultimaUnidad === 'gramos') {
+      this.gramos.set(uso.ultimaCantidad);
+    }
   }
 
   actualizarGramos(valor: string | null | undefined): void {
     const numero = Number(valor);
     this.gramos.set(Number.isFinite(numero) && numero > 0 ? numero : 0);
+  }
+
+  async alternarFavorito(): Promise<void> {
+    const alimento = this.alimento();
+    const perfil = await this.perfilRepository.obtenerUltimoUsado();
+    if (!alimento || !perfil) {
+      return;
+    }
+    await this.perfilAlimentoRepository.alternarFavorito(
+      perfil.id,
+      alimento.id,
+    );
+    this.esFavorito.set(!this.esFavorito());
   }
 
   private paraRacion(valorPor100g: (alimento: Alimento) => number): number {
@@ -110,6 +142,12 @@ export class DetalleAlimentoComponent implements OnInit {
       creadoEn: new Date().toISOString(),
     };
     await this.registroConsumoRepository.guardar(nuevo);
+    await this.perfilAlimentoRepository.registrarUso(
+      perfil.id,
+      alimentoActual.id,
+      this.gramos(),
+      'gramos',
+    );
     this.router.navigate(['/inicio']);
   }
 }

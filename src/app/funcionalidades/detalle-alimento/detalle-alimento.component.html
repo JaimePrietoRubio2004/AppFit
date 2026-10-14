@@ -11,6 +11,10 @@
       {{ a.grasa100g }} g grasas * {{ a.carbohidrato100g }} g hidratos
     </p>
 
+    <ion-button fill="outline" (click)="alternarFavorito()">
+      {{ esFavorito() ? "Quitar de favoritos" : "Añadir a favoritos" }}
+    </ion-button>
+
     <ion-item>
       <ion-label position="stacked">Cantidad (g)</ion-label>
       <ion-input

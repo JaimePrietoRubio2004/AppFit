@@ -8,6 +8,21 @@
   <ion-button expand="block" (click)="escanear()">
     Escanear código de barras</ion-button
   >
+  <ng-template #fila let-alimento>
+    <ion-item button (click)="abrir(alimento)">
+      <ion-label>
+        <h3>{{ alimento.nombre }}</h3>
+        <p>
+          @if (alimento.marca) {
+            {{ alimento.marca }} ·
+          }
+          {{ alimento.kcal100g | number: "1.0-0" }} kcal /
+          {{ alimento.tipoMedida === "liquido" ? "100 ml" : "100 g" }}
+        </p>
+      </ion-label>
+    </ion-item>
+  </ng-template>
+
   <ion-searchbar
     placeholder="Buscar alimento"
     [debounce]="200"
@@ -17,22 +32,34 @@
   @if (textoBusqueda() !== "") {
     <ion-list>
       @for (alimento of resultados(); track alimento.id) {
-        <ion-item button (click)="abrir(alimento)">
-          <ion-label>
-            <h3>{{ alimento.nombre }}</h3>
-            <p>
-              @if (alimento.marca) {
-                {{ alimento.marca }} ·
-              }
-              {{ alimento.kcal100g | number: "1.0-0" }} kcal /
-              {{ alimento.tipoMedida === "liquido" ? "100 ml" : "100 g" }}
-            </p>
-          </ion-label>
-        </ion-item>
+        <ng-container
+          *ngTemplateOutlet="fila; context: { $implicit: alimento }"
+        />
       } @empty {
         <ion-item><ion-label>Sin resultados</ion-label></ion-item>
       }
     </ion-list>
+  } @else {
+    @if (favoritos().length > 0) {
+      <h2>Favoritos</h2>
+      <ion-list>
+        @for (alimento of favoritos(); track alimento.id) {
+          <ng-container
+            *ngTemplateOutlet="fila; context: { $implicit: alimento }"
+          />
+        }
+      </ion-list>
+    }
+    @if (masUsados().length > 0) {
+      <h2>Más usados</h2>
+      <ion-list>
+        @for (alimento of masUsados(); track alimento.id) {
+          <ng-container
+            *ngTemplateOutlet="fila; context: { $implicit: alimento }"
+          />
+        }
+      </ion-list>
+    }
   }
   @if (mensaje()) {
     <p>{{ mensaje() }}</p>

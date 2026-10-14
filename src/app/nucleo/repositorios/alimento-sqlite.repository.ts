@@ -8,7 +8,7 @@ const COLUMNAS = `codigo_barras, nombre, marca, kcal_100g, proteina_100g, grasa_
   azucares_100g, saturadas_100g, fibra_100g, sal_100g, nombre_unidad, gramos_por_unidad,
   unidad_origen, tipo_medida, kcal_alcohol_100, es_estimado, origen, fecha_cache`;
 
-interface FilaAlimento {
+export interface FilaAlimento {
   id: number;
   codigo_barras: string | null;
   nombre: string;
@@ -31,7 +31,7 @@ interface FilaAlimento {
   fecha_cache: string | null;
 }
 
-function filaAAlimento(fila: FilaAlimento): Alimento {
+export function filaAAlimento(fila: FilaAlimento): Alimento {
   return {
     id: fila.id,
     codigoBarras: fila.codigo_barras,

@@ -75,6 +75,16 @@ CREATE TABLE IF NOT EXISTS registro_peso (
   UNIQUE (perfil_id, fecha)
 );
 
+CREATE TABLE IF NOT EXISTS perfil_alimento (
+  perfil_id INTEGER NOT NULL REFERENCES perfil(id) ON DELETE CASCADE,
+  alimento_id INTEGER NOT NULL REFERENCES alimento(id) ON DELETE CASCADE,
+  es_favorito INTEGER NOT NULL DEFAULT 0,
+  veces_usado INTEGER NOT NULL DEFAULT 0,
+  ultima_cantidad REAL,
+  ultima_unidad TEXT,
+  PRIMARY KEY (perfil_id, alimento_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_registro_consumo_perfil_fecha ON registro_consumo (perfil_id, fecha);
 `;
 
