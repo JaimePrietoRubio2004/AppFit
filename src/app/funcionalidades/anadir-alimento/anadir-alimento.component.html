@@ -8,6 +8,32 @@
   <ion-button expand="block" (click)="escanear()">
     Escanear código de barras</ion-button
   >
+  <ion-searchbar
+    placeholder="Buscar alimento"
+    [debounce]="200"
+    (ionInput)="buscar($event.detail.value)"
+  ></ion-searchbar>
+
+  @if (textoBusqueda() !== "") {
+    <ion-list>
+      @for (alimento of resultados(); track alimento.id) {
+        <ion-item button (click)="abrir(alimento)">
+          <ion-label>
+            <h3>{{ alimento.nombre }}</h3>
+            <p>
+              @if (alimento.marca) {
+                {{ alimento.marca }} ·
+              }
+              {{ alimento.kcal100g | number: "1.0-0" }} kcal /
+              {{ alimento.tipoMedida === "liquido" ? "100 ml" : "100 g" }}
+            </p>
+          </ion-label>
+        </ion-item>
+      } @empty {
+        <ion-item><ion-label>Sin resultados</ion-label></ion-item>
+      }
+    </ion-list>
+  }
   @if (mensaje()) {
     <p>{{ mensaje() }}</p>
   }

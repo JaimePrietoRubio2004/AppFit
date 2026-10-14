@@ -6,8 +6,14 @@ import {
   IonTitle,
   IonContent,
   IonButton,
+  IonSearchbar,
+  IonList,
+  IonItem,
+  IonLabel,
 } from '@ionic/angular';
-
+import { DecimalPipe } from '@angular/common';
+import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
+import { Alimento } from '../../nucleo/modelos/alimento.model';
 import { EscanerCodigoBarras } from '../../nucleo/servicios/escaner-codigo-barras';
 import { ResolverAlimento } from '../../nucleo/servicios/resolver-alimento';
 
@@ -15,13 +21,27 @@ import { ResolverAlimento } from '../../nucleo/servicios/resolver-alimento';
   selector: 'app-anadir-alimento',
   templateUrl: './anadir-alimento.component.html',
   styleUrls: ['./anadir-alimento.component.scss'],
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButton],
+  imports: [
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonButton,
+    DecimalPipe,
+    IonSearchbar,
+    IonList,
+    IonItem,
+    IonLabel,
+  ],
 })
 export class AnadirAlimentoComponent {
   private readonly escanerCodigoBarras = inject(EscanerCodigoBarras);
   private readonly resolverAlimento = inject(ResolverAlimento);
   private readonly router = inject(Router);
+  private readonly alimentoRepository = inject(ALIMENTO_REPOSITORY);
 
+  protected readonly textoBusqueda = signal('');
+  protected readonly resultados = signal<Alimento[]>([]);
   protected readonly mensaje = signal<string | null>(null);
 
   async escanear(): Promise<void> {
@@ -44,6 +64,23 @@ export class AnadirAlimentoComponent {
     } catch (error) {
       this.mensaje.set(`Error inesperado: ${error}`);
     }
+  }
+
+  async buscar(valor: string | null | undefined): Promise<void> {
+    const texto = (valor ?? '').trim();
+    this.textoBusqueda.set(texto);
+    if (texto === '') {
+      this.resultados.set([]);
+      return;
+    }
+    const encontrados = await this.alimentoRepository.buscarPorTexto(texto);
+    if (this.textoBusqueda() === texto) {
+      this.resultados.set(encontrados);
+    }
+  }
+
+  abrir(alimento: Alimento): void {
+    this.router.navigate(['/detalle-alimento', alimento.id]);
   }
 
   private mensajeEscaneo(

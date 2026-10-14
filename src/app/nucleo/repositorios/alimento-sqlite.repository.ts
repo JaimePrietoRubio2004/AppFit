@@ -2,6 +2,7 @@ import { inject, Service } from '@angular/core';
 import { Alimento } from '../modelos/alimento.model';
 import { AlimentoRepository, NuevoAlimento } from './alimento.repository';
 import { BaseDatos } from '../base-datos/base-datos';
+import { normalizarTexto } from '../utilidades/texto';
 
 const COLUMNAS = `codigo_barras, nombre, marca, kcal_100g, proteina_100g, grasa_100g, carbohidrato_100g,
   azucares_100g, saturadas_100g, fibra_100g, sal_100g, nombre_unidad, gramos_por_unidad,
@@ -151,11 +152,18 @@ export class AlimentoSqlite implements AlimentoRepository {
   async buscarPorTexto(texto: string): Promise<Alimento[]> {
     const db = await this.baseDatos.obtenerConexion();
     const resultado = await db.query(
-      'SELECT * FROM alimento WHERE nombre LIKE ? ORDER BY nombre LIMIT 30',
-      [`%${texto}%`],
+      'SELECT * FROM alimento ORDER BY nombre',
+      [],
       false,
     );
-    return ((resultado.values ?? []) as FilaAlimento[]).map(filaAAlimento);
+    const palabras = normalizarTexto(texto).split(/\s+/).filter(Boolean);
+    return ((resultado.values ?? []) as FilaAlimento[])
+      .filter((fila) => {
+        const candidato = normalizarTexto(`${fila.nombre} ${fila.marca ?? ''}`);
+        return palabras.every((palabra) => candidato.includes(palabra));
+      })
+      .slice(0, 30)
+      .map(filaAAlimento);
   }
   async existeCatalogoSemilla(): Promise<boolean> {
     const db = await this.baseDatos.obtenerConexion();
