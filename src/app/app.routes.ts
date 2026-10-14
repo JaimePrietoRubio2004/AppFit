@@ -46,6 +46,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'historial',
+    loadComponent: () =>
+      import('./funcionalidades/historial/historial.component').then(
+        (m) => m.HistorialComponent,
+      ),
+  },
+  {
     path: 'ajustes',
     loadComponent: () =>
       import('./funcionalidades/ajustes/ajustes.component').then(

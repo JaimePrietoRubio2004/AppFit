@@ -9,3 +9,12 @@ export function sumarDias(fecha: string, dias: number): string {
   const [anio, mes, dia] = fecha.split('-').map(Number);
   return fechaLocal(new Date(anio, mes - 1, dia + dias));
 }
+
+export function etiquetaDia(fecha: string): string {
+  const [anio, mes, dia] = fecha.split('-').map(Number);
+  return new Date(anio, mes - 1, dia).toLocaleDateString('es-ES', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+}

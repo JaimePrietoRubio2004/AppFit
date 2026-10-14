@@ -1,0 +1,57 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Historial</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (dias().length === 0) {
+    <p>No hay registros en los últimos {{ diasMostrados }} días.</p>
+  }
+
+  <ion-list>
+    @for (dia of dias(); track dia.fecha) {
+      <ion-item button (click)="alternarDia(dia.fecha)">
+        <ion-label>
+          <h2>{{ etiquetaDia(dia.fecha) }}</h2>
+          <p class="cifras">
+            {{ dia.kcal | number: "1.0-0" }} kcal · proteína
+            {{ dia.proteinaG | number: "1.0-0" }} g · grasa
+            {{ dia.grasaG | number: "1.0-0" }} g · hidratos
+            {{ dia.carbohidratoG | number: "1.0-0" }} g
+          </p>
+        </ion-label>
+      </ion-item>
+
+      @if (diaAbierto() === dia.fecha) {
+        @for (registro of dia.registros; track registro.id) {
+          <ion-item class="registro">
+            <ion-label>
+              <h3>{{ nombresAlimento()[registro.alimentoId] }}</h3>
+              <p class="cifras">
+                {{ etiquetaComida(registro.tipoComida) }} ·
+                {{ descripcionCantidad(registro) }} ·
+                {{ registro.kcal | number: "1.0-0" }} kcal
+              </p>
+            </ion-label>
+            <ion-button
+              slot="end"
+              fill="clear"
+              color="danger"
+              (click)="pedirEliminar(registro)"
+              >Eliminar</ion-button
+            >
+          </ion-item>
+        }
+      }
+    }
+  </ion-list>
+
+  <ion-button expand="block" fill="outline" (click)="verMas()"
+    >Ver 30 días anteriores</ion-button
+  >
+
+  @if (mensaje()) {
+    <p>{{ mensaje() }}</p>
+  }
+</ion-content>
