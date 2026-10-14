@@ -15,6 +15,7 @@ import { ObjetivoPerfil } from '../../nucleo/servicios/objetivo-perfil';
 import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { REGISTRO_CONSUMO_REPOSITORY } from '../../nucleo/repositorios/registro-consumo.repository';
+import { fechaLocal } from '../../nucleo/utilidades/fecha';
 
 @Component({
   selector: 'app-inicio',
@@ -67,7 +68,7 @@ export class InicioComponent implements OnInit, ViewWillEnter {
     this.textoPerfil.set(`${actual.nombre} (id ${actual.id})`);
     this.objetivo.set(await this.objetivoPerfil.obtener(actual));
 
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = fechaLocal();
     const registros = await this.registroConsumoRepository.obtenerPorDia(
       actual.id,
       hoy,

@@ -29,6 +29,7 @@ import {
   NivelActividad,
   ObjetivoCorporal,
 } from '../../nucleo/modelos/perfil.model';
+import { fechaLocal } from '../../nucleo/utilidades/fecha';
 
 const COLOR_AVATAR_POR_DEFECTO = '#0F766E';
 @Component({
@@ -153,7 +154,7 @@ export class ConfiguracionInicialComponent implements ViewWillEnter {
     }
     this.mensaje.set(null);
     try {
-      const fechaHoy = new Date().toISOString().slice(0, 10);
+      const fechaHoy = fechaLocal();
       const perfil = await this.perfilRepository.crear({
         nombre: this.nombre(),
         colorAvatar: COLOR_AVATAR_POR_DEFECTO,

@@ -21,6 +21,7 @@ import {
 } from '../../nucleo/repositorios/registro-consumo.repository';
 import { Alimento } from '../../nucleo/modelos/alimento.model';
 import { TipoComida } from '../../nucleo/modelos/registro-consumo.model';
+import { fechaLocal } from '../../nucleo/utilidades/fecha';
 
 @Component({
   selector: 'app-detalle-alimento',
@@ -95,7 +96,7 @@ export class DetalleAlimentoComponent implements OnInit {
     }
     const nuevo: NuevoRegistroConsumo = {
       perfilId: perfil.id,
-      fecha: new Date().toISOString().slice(0, 10),
+      fecha: fechaLocal(),
       tipoComida: this.tipoComida(),
       alimentoId: alimentoActual.id,
       gramos: this.gramos(),

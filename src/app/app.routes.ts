@@ -39,6 +39,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'progreso',
+    loadComponent: () =>
+      import('./funcionalidades/progreso/progreso.component').then(
+        (m) => m.ProgresoComponent,
+      ),
+  },
+  {
     path: 'ajustes',
     loadComponent: () =>
       import('./funcionalidades/ajustes/ajustes.component').then(

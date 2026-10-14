@@ -11,6 +11,11 @@ export interface RegistroPesoRepository {
     fecha: string,
   ): Promise<RegistroPeso | null>;
   obtenerUltimo(perfilId: number): Promise<RegistroPeso | null>;
+  obtenerRango(
+    perfilId: number,
+    desde: string,
+    hasta: string,
+  ): Promise<RegistroPeso[]>;
 }
 
 export const REGISTRO_PESO_REPOSITORY =

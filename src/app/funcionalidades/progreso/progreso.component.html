@@ -1,0 +1,77 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Progreso</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (resumen(); as r) {
+    <h2>Últimos 7 días</h2>
+
+    @if (r.kcal !== null) {
+      <p class="cifra-principal">
+        {{ r.kcal | number: "1.0-0" }}
+        <span class="cifra-objetivo">
+          @if (objetivo(); as o) {
+            / {{ o.kcalObjetivo | number: "1.0-0" }}
+          }
+          kcal de media
+        </span>
+      </p>
+      <p>Media diaria sobre {{ r.diasConDatos }} de 7 días con registros.</p>
+
+      <p class="macro macro-proteina">
+        Proteína: {{ r.proteinaG | number: "1.0-0" }}
+        @if (objetivo(); as o) {
+          / {{ o.proteinaG | number: "1.0-0" }}
+        }
+        g
+      </p>
+      <p class="macro macro-grasa">
+        Grasa: {{ r.grasaG | number: "1.0-0" }}
+        @if (objetivo(); as o) {
+          / {{ o.grasaG | number: "1.0-0" }}
+        }
+        g
+      </p>
+      <p class="macro macro-carbohidrato">
+        Hidratos: {{ r.carbohidratoG | number: "1.0-0" }}
+        @if (objetivo(); as o) {
+          / {{ o.carbohidratoG | number: "1.0-0" }}
+        }
+        g
+      </p>
+    } @else {
+      <p>Aún no hay registros de comida en los últimos 7 días.</p>
+    }
+
+    <h2>Peso</h2>
+
+    @if (r.pesoKg !== null) {
+      <p class="cifra-principal">
+        {{ r.pesoKg | number: "1.0-1" }}
+        <span class="cifra-objetivo">kg de media</span>
+      </p>
+      <p>Media de 7 días sobre {{ r.pesosEnVentana }} pesada(s).</p>
+    } @else {
+      <p>Aún no hay pesadas en los últimos 7 días.</p>
+    }
+  }
+
+  <ion-item>
+    <ion-label position="stacked">Peso de hoy (kg)</ion-label>
+    <ion-input
+      type="number"
+      step="0.1"
+      [ngModel]="pesoHoyTexto()"
+      (ngModelChange)="pesoHoyTexto.set(aTexto($event))"
+    ></ion-input>
+  </ion-item>
+  <ion-button expand="block" [disabled]="!pesoValido()" (click)="guardarPeso()">
+    Guardar peso
+  </ion-button>
+
+  @if (mensaje()) {
+    <p>{{ mensaje() }}</p>
+  }
+</ion-content>

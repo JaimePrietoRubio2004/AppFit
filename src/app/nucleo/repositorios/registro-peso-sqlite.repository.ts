@@ -26,6 +26,21 @@ function filaARegistrarPeso(fila: FilaRegistroPeso): RegistroPeso {
 export class RegistroPesoSqlite implements RegistroPesoRepository {
   private readonly baseDatos = inject(BaseDatos);
 
+  async obtenerRango(
+    perfilId: number,
+    desde: string,
+    hasta: string,
+  ): Promise<RegistroPeso[]> {
+    const db = await this.baseDatos.obtenerConexion();
+    const resultado = await db.query(
+      'SELECT * FROM registro_peso WHERE perfil_id = ? AND fecha BETWEEN ? AND ? ORDER BY fecha',
+      [perfilId, desde, hasta],
+      false,
+    );
+    return ((resultado.values ?? []) as FilaRegistroPeso[]).map(
+      filaARegistrarPeso,
+    );
+  }
   async crear(registro: NuevoRegistroPeso): Promise<RegistroPeso> {
     const db = await this.baseDatos.obtenerConexion();
     const resultado = await db.run(
@@ -55,7 +70,7 @@ export class RegistroPesoSqlite implements RegistroPesoRepository {
   }
   async obtenerPorFecha(
     perfilId: number,
-    fecha: String,
+    fecha: string,
   ): Promise<RegistroPeso | null> {
     const db = await this.baseDatos.obtenerConexion();
     const resultado = await db.query(
