@@ -10,6 +10,12 @@ import {
   IonButtons,
   IonProgressBar,
   ViewWillEnter,
+  IonMenu,
+  IonMenuButton,
+  IonList,
+  IonMenuToggle,
+  IonItem,
+  IonLabel,
 } from '@ionic/angular';
 import { ObjetivoPerfil } from '../../nucleo/servicios/objetivo-perfil';
 import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
@@ -31,6 +37,12 @@ import { fechaLocal } from '../../nucleo/utilidades/fecha';
     RouterLink,
     DecimalPipe,
     IonProgressBar,
+    IonMenu,
+    IonMenuButton,
+    IonMenuToggle,
+    IonList,
+    IonItem,
+    IonLabel,
   ],
 })
 export class InicioComponent implements OnInit, ViewWillEnter {
