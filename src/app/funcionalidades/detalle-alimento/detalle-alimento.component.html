@@ -16,14 +16,35 @@
     </ion-button>
 
     <ion-item>
-      <ion-label position="stacked">Cantidad (g)</ion-label>
+      <ion-label position="stacked">
+        Cantidad ({{ modo() === "unidad" ? a.nombreUnidad : etiquetaBase() }})
+      </ion-label>
       <ion-input
         type="number"
-        [value]="gramos()"
-        (ionInput)="actualizarGramos($event.detail.value)"
+        step="0.1"
+        [value]="cantidad()"
+        (ionInput)="actualizarCantidad($event.detail.value)"
       >
       </ion-input>
     </ion-item>
+
+    @if (tieneUnidad()) {
+      <ion-segment
+        [value]="modo()"
+        (ionChange)="seleccionarModo($event.detail.value)"
+      >
+        <ion-segment-button value="base">
+          <ion-label>{{ etiquetaBase() }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="unidad">
+          <ion-label>{{ a.nombreUnidad }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      @if (modo() === "unidad") {
+        <p>= {{ gramos() | number: "1.0-1" }} {{ etiquetaBase() }}</p>
+      }
+    }
 
     <ion-item>
       <ion-label position="stacked">Tipo de comida</ion-label>
@@ -40,7 +61,8 @@
       </ion-select>
     </ion-item>
     <p>
-      Ración ({{ gramos() }} g): {{ kcalRacion() | number: "1.0-0" }} kcal ·
+      Ración ({{ gramos() | number: "1.0-1" }} {{ etiquetaBase() }}):
+      {{ kcalRacion() | number: "1.0-0" }} kcal ·
       {{ proteinaRacion() | number: "1.0-1" }} g proteína ·
       {{ grasasRacion() | number: "1.0-1" }} g grasa ·
       {{ carbohidratosRacion() | number: "1.0-1" }} g hidratos

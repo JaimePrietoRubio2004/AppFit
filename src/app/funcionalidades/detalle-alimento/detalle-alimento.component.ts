@@ -12,6 +12,8 @@ import {
   IonSelect,
   IonSelectOption,
   IonButton,
+  IonSegment,
+  IonSegmentButton,
 } from '@ionic/angular';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
@@ -24,6 +26,13 @@ import { TipoComida } from '../../nucleo/modelos/registro-consumo.model';
 import { fechaLocal } from '../../nucleo/utilidades/fecha';
 import { PERFIL_ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/perfil-alimento.repository';
 
+const UNIDAD = 'unidad';
+const BASE = 'base';
+const COMIDA = 'comida';
+const LIQUIDO = 'liquido';
+const ML = 'ml';
+const G = 'g';
+const GRAMOS = 'gramos';
 @Component({
   selector: 'app-detalle-alimento',
   templateUrl: './detalle-alimento.component.html',
@@ -40,6 +49,8 @@ import { PERFIL_ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/perfil-ali
     IonSelectOption,
     IonButton,
     DecimalPipe,
+    IonSegment,
+    IonSegmentButton,
   ],
 })
 export class DetalleAlimentoComponent implements OnInit {
@@ -55,8 +66,9 @@ export class DetalleAlimentoComponent implements OnInit {
   );
 
   protected readonly alimento = signal<Alimento | null>(null);
-  protected readonly gramos = signal(100);
-  protected readonly tipoComida = signal<TipoComida>('comida');
+  protected readonly cantidad = signal(100);
+  protected readonly modo = signal<'base' | 'unidad'>(BASE);
+  protected readonly tipoComida = signal<TipoComida>(COMIDA);
   protected readonly esFavorito = signal(false);
 
   protected readonly kcalRacion = computed(() =>
@@ -71,6 +83,19 @@ export class DetalleAlimentoComponent implements OnInit {
   protected readonly carbohidratosRacion = computed(() =>
     this.paraRacion((a) => a.carbohidrato100g),
   );
+  protected readonly tieneUnidad = computed(() => {
+    const a = this.alimento();
+    return a !== null && a.nombreUnidad !== null && a.gramosPorUnidad !== null;
+  });
+  protected etiquetaBase = computed(() =>
+    this.alimento()?.tipoMedida === LIQUIDO ? ML : G,
+  );
+  protected readonly gramos = computed(() => {
+    const gramosPorUnidad = this.alimento()?.gramosPorUnidad;
+    return this.modo() === UNIDAD && gramosPorUnidad
+      ? this.cantidad() * gramosPorUnidad
+      : this.cantidad();
+  });
 
   async ngOnInit(): Promise<void> {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -86,14 +111,28 @@ export class DetalleAlimentoComponent implements OnInit {
       alimento.id,
     );
     this.esFavorito.set(uso?.esFavorito ?? false);
-    if (uso?.ultimaCantidad && uso.ultimaUnidad === 'gramos') {
-      this.gramos.set(uso.ultimaCantidad);
+    if (uso?.ultimaCantidad && uso.ultimaUnidad) {
+      if (uso.ultimaUnidad === GRAMOS) {
+        this.cantidad.set(uso.ultimaCantidad);
+      } else if (uso.ultimaUnidad === alimento.nombreUnidad) {
+        this.modo.set(UNIDAD);
+        this.cantidad.set(uso.ultimaCantidad);
+      }
     }
   }
 
-  actualizarGramos(valor: string | null | undefined): void {
+  actualizarCantidad(valor: string | null | undefined): void {
     const numero = Number(valor);
-    this.gramos.set(Number.isFinite(numero) && numero > 0 ? numero : 0);
+    this.cantidad.set(Number.isFinite(numero) && numero > 0 ? numero : 0);
+  }
+
+  seleccionarModo(valor: unknown): void {
+    const modo = valor === UNIDAD ? UNIDAD : BASE;
+    if (modo === this.modo()) {
+      return;
+    }
+    this.modo.set(modo);
+    this.cantidad.set(modo === UNIDAD ? 1 : 100);
   }
 
   async alternarFavorito(): Promise<void> {
@@ -126,14 +165,17 @@ export class DetalleAlimentoComponent implements OnInit {
     if (!perfil) {
       return;
     }
+    const unidadIntroducida =
+      this.modo() === UNIDAD ? (alimentoActual.nombreUnidad ?? GRAMOS) : GRAMOS;
+
     const nuevo: NuevoRegistroConsumo = {
       perfilId: perfil.id,
       fecha: fechaLocal(),
       tipoComida: this.tipoComida(),
       alimentoId: alimentoActual.id,
       gramos: this.gramos(),
-      cantidadIntroducida: this.gramos(),
-      unidadIntroducida: 'gramos',
+      cantidadIntroducida: this.cantidad(),
+      unidadIntroducida: unidadIntroducida,
       kcal: this.kcalRacion(),
       proteinaG: this.proteinaRacion(),
       grasaG: this.grasasRacion(),
@@ -145,8 +187,8 @@ export class DetalleAlimentoComponent implements OnInit {
     await this.perfilAlimentoRepository.registrarUso(
       perfil.id,
       alimentoActual.id,
-      this.gramos(),
-      'gramos',
+      this.cantidad(),
+      unidadIntroducida,
     );
     this.router.navigate(['/inicio']);
   }
