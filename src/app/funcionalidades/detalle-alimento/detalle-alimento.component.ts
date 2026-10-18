@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  WritableSignal,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import {
@@ -33,6 +40,8 @@ const LIQUIDO = 'liquido';
 const ML = 'ml';
 const G = 'g';
 const GRAMOS = 'gramos';
+const DIRECTO = 'directo';
+const MANUAL = 'manual';
 @Component({
   selector: 'app-detalle-alimento',
   templateUrl: './detalle-alimento.component.html',
@@ -70,6 +79,13 @@ export class DetalleAlimentoComponent implements OnInit {
   protected readonly modo = signal<'base' | 'unidad'>(BASE);
   protected readonly tipoComida = signal<TipoComida>(COMIDA);
   protected readonly esFavorito = signal(false);
+  protected readonly definiendoUnidad = signal(false);
+  protected readonly nombreUnidadTexto = signal('');
+  protected readonly metodoUnidad = signal<'directo' | 'calculo'>(DIRECTO);
+  protected readonly gramosUnidadTexto = signal('');
+  protected readonly totalGramosTexto = signal('');
+  protected readonly numeroUnidadesTexto = signal('');
+  protected readonly mensaje = signal<string | null>(null);
 
   protected readonly kcalRacion = computed(() =>
     this.paraRacion((a) => a.kcal100g),
@@ -96,6 +112,18 @@ export class DetalleAlimentoComponent implements OnInit {
       ? this.cantidad() * gramosPorUnidad
       : this.cantidad();
   });
+  protected readonly gramosPorUnidadCalculados = computed(() => {
+    if (this.metodoUnidad() === DIRECTO) {
+      return this.aNumero(this.gramosUnidadTexto());
+    }
+    const unidades = this.aNumero(this.numeroUnidadesTexto());
+    return unidades > 0 ? this.aNumero(this.totalGramosTexto()) / unidades : 0;
+  });
+  protected readonly unidadValida = computed(
+    () =>
+      this.nombreUnidadTexto().trim() !== '' &&
+      this.gramosPorUnidadCalculados() > 0,
+  );
 
   async ngOnInit(): Promise<void> {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -133,6 +161,58 @@ export class DetalleAlimentoComponent implements OnInit {
     }
     this.modo.set(modo);
     this.cantidad.set(modo === UNIDAD ? 1 : 100);
+  }
+
+  private aNumero(texto: string): number {
+    const numero = Number(texto);
+    return texto.trim() !== '' && Number.isFinite(numero) ? numero : 0;
+  }
+
+  actualizarTexto(
+    senal: WritableSignal<string>,
+    valor: string | null | undefined,
+  ): void {
+    senal.set(valor ?? '');
+  }
+
+  abrirDefinicion(): void {
+    const alimento = this.alimento();
+    this.nombreUnidadTexto.set(alimento?.nombreUnidad ?? '');
+    this.gramosUnidadTexto.set(
+      alimento?.gramosPorUnidad ? String(alimento.gramosPorUnidad) : '',
+    );
+    this.totalGramosTexto.set('');
+    this.numeroUnidadesTexto.set('');
+    this.metodoUnidad.set(DIRECTO);
+    this.mensaje.set(null);
+    this.definiendoUnidad.set(true);
+  }
+
+  cancelarDefinicion(): void {
+    this.definiendoUnidad.set(false);
+  }
+
+  async guardarUnidad(): Promise<void> {
+    const alimento = this.alimento();
+    if (!alimento || !this.unidadValida()) {
+      return;
+    }
+    this.mensaje.set(null);
+    try {
+      const actualizado: Alimento = {
+        ...alimento,
+        nombreUnidad: this.nombreUnidadTexto().trim(),
+        gramosPorUnidad: this.gramosPorUnidadCalculados(),
+        unidadOrigen: MANUAL,
+      };
+      await this.alimentoRepository.actualizar(actualizado);
+      this.alimento.set(actualizado);
+      this.modo.set(UNIDAD);
+      this.cantidad.set(1);
+      this.definiendoUnidad.set(false);
+    } catch (error) {
+      this.mensaje.set(`Error al guardar la unidad: ${error}`);
+    }
   }
 
   async alternarFavorito(): Promise<void> {

@@ -46,6 +46,97 @@
       }
     }
 
+    @if (!definiendoUnidad()) {
+      <ion-button fill="clear" size="small" (click)="abrirDefinicion()">
+        {{ tieneUnidad() ? "Cambiar unidad" : "+ Definir unidad" }}
+      </ion-button>
+    } @else {
+      <ion-item>
+        <ion-label position="stacked"
+          >Nombre de la unidad (loncha, cucharada, taza…)</ion-label
+        >
+        <ion-input
+          [value]="nombreUnidadTexto()"
+          (ionInput)="actualizarTexto(nombreUnidadTexto, $event.detail.value)"
+        ></ion-input>
+      </ion-item>
+
+      <ion-segment
+        [value]="metodoUnidad()"
+        (ionChange)="
+          metodoUnidad.set(
+            $event.detail.value === 'calculo' ? 'calculo' : 'directo'
+          )
+        "
+      >
+        <ion-segment-button value="directo">
+          <ion-label>Lo sé</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="calculo">
+          <ion-label>Calcularlo</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
+      @if (metodoUnidad() === "directo") {
+        <ion-item>
+          <ion-label position="stacked"
+            >Peso de una unidad ({{ etiquetaBase() }})</ion-label
+          >
+          <ion-input
+            type="number"
+            step="0.1"
+            [value]="gramosUnidadTexto()"
+            (ionInput)="actualizarTexto(gramosUnidadTexto, $event.detail.value)"
+          ></ion-input>
+        </ion-item>
+      } @else {
+        <ion-item>
+          <ion-label position="stacked"
+            >Peso total del envase ({{ etiquetaBase() }})</ion-label
+          >
+          <ion-input
+            type="number"
+            step="0.1"
+            [value]="totalGramosTexto()"
+            (ionInput)="actualizarTexto(totalGramosTexto, $event.detail.value)"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Número de unidades</ion-label>
+          <ion-input
+            type="number"
+            [value]="numeroUnidadesTexto()"
+            (ionInput)="
+              actualizarTexto(numeroUnidadesTexto, $event.detail.value)
+            "
+          ></ion-input>
+        </ion-item>
+        <p>
+          {{ totalGramosTexto() || "?" }} {{ etiquetaBase() }} ÷
+          {{ numeroUnidadesTexto() || "?" }} unidades =
+          {{ gramosPorUnidadCalculados() | number: "1.0-2" }}
+          {{ etiquetaBase() }}
+        </p>
+      }
+
+      <p>Pon el peso de la parte comestible (sin piel, cáscara ni hueso).</p>
+      @if (tieneUnidad()) {
+        <p>
+          El cambio solo afecta a los registros que hagas a partir de ahora.
+        </p>
+      }
+
+      <ion-button fill="outline" (click)="cancelarDefinicion()"
+        >Cancelar</ion-button
+      >
+      <ion-button [disabled]="!unidadValida()" (click)="guardarUnidad()"
+        >Guardar unidad</ion-button
+      >
+      @if (mensaje()) {
+        <p>{{ mensaje() }}</p>
+      }
+    }
+
     <ion-item>
       <ion-label position="stacked">Tipo de comida</ion-label>
       <ion-select
