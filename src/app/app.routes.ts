@@ -74,6 +74,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'insertar-comida',
+    loadComponent: () =>
+      import('./funcionalidades/insertar-comida/insertar-comida.component').then(
+        (m) => m.InsertarComidaComponent,
+      ),
+  },
+  {
     path: '',
     redirectTo: 'inicio',
     pathMatch: 'full',

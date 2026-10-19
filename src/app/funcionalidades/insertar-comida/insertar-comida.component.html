@@ -1,0 +1,73 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ titulo() }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label position="stacked">Tipo de comida</ion-label>
+    <ion-select
+      [value]="tipoComida()"
+      (ionChange)="tipoComida.set($event.detail.value)"
+    >
+      <ion-select-option value="desayuno">Desayuno</ion-select-option>
+      <ion-select-option value="almuerzo">Almuerzo</ion-select-option>
+      <ion-select-option value="comida">Comida</ion-select-option>
+      <ion-select-option value="merienda">Merienda</ion-select-option>
+      <ion-select-option value="cena">Cena</ion-select-option>
+      <ion-select-option value="otro">Otro</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  @if (lineas().length === 0) {
+    <p>No quedan alimentos en esta comida.</p>
+  }
+
+  <ion-list>
+    @for (linea of lineas(); track $index; let i = $index) {
+      <ion-item>
+        <ion-label>
+          <h3>{{ linea.alimento.nombre }}</h3>
+          <p class="cifras">
+            {{ gramosDe(linea) | number: "1.0-1" }}
+            {{ linea.alimento.tipoMedida === "liquido" ? "ml" : "g" }} ·
+            {{ kcalDe(linea) | number: "1.0-0" }} kcal
+          </p>
+          @if (linea.aviso) {
+            <p>{{ linea.aviso }}</p>
+          }
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked"
+          >Cantidad ({{ etiquetaUnidad(linea) }})</ion-label
+        >
+        <ion-input
+          type="number"
+          step="0.1"
+          [value]="linea.cantidad"
+          (ionInput)="actualizarCantidad(i, $event.detail.value)"
+        ></ion-input>
+        <ion-button slot="end" fill="clear" color="danger" (click)="quitar(i)"
+          >Quitar</ion-button
+        >
+      </ion-item>
+    }
+  </ion-list>
+
+  <p class="cifras">
+    <strong>Total: {{ totalKcal() | number: "1.0-0" }} kcal</strong>
+  </p>
+
+  <ion-button
+    expand="block"
+    [disabled]="!puedeConfirmar()"
+    (click)="confirmar()"
+    >Añadir todo</ion-button
+  >
+
+  @if (mensaje()) {
+    <p>{{ mensaje() }}</p>
+  }
+</ion-content>

@@ -1,0 +1,131 @@
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { Router } from '@angular/router';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonButton,
+} from '@ionic/angular';
+import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
+import { TipoComida } from '../../nucleo/modelos/registro-consumo.model';
+import {
+  InsertarComida,
+  LineaComida,
+} from '../../nucleo/servicios/insertar-comida';
+
+const GRAMOS = 'gramos';
+const LIQUIDO = 'liquido';
+const ML = 'ml';
+const G = 'g';
+@Component({
+  selector: 'app-insertar-comida',
+  templateUrl: './insertar-comida.component.html',
+  styleUrls: ['./insertar-comida.component.scss'],
+  imports: [
+    DecimalPipe,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonButton,
+  ],
+})
+export class InsertarComidaComponent implements OnInit {
+  private readonly insertarComida = inject(InsertarComida);
+  private readonly perfilRepository = inject(PERFIL_REPOSITORY);
+  private readonly router = inject(Router);
+
+  private plantillaId: number | null = null;
+
+  protected readonly titulo = signal('');
+  protected readonly tipoComida = signal<TipoComida>('comida');
+  protected readonly lineas = signal<LineaComida[]>([]);
+  protected readonly mensaje = signal<string | null>(null);
+
+  protected readonly totalKcal = computed(() =>
+    this.lineas().reduce((suma, linea) => suma + this.kcalDe(linea), 0),
+  );
+  protected readonly puedeConfirmar = computed(
+    () =>
+      this.lineas().length > 0 &&
+      this.lineas().every((linea) => linea.cantidad > 0),
+  );
+
+  ngOnInit(): void {
+    const propuesta = this.insertarComida.propuesta();
+    if (!propuesta) {
+      this.router.navigate(['/inicio']);
+      return;
+    }
+    this.titulo.set(propuesta.titulo);
+    this.tipoComida.set(propuesta.tipoComida);
+    this.plantillaId = propuesta.plantillaId;
+    this.lineas.set(propuesta.lineas);
+  }
+
+  protected gramosDe(linea: LineaComida): number {
+    return linea.cantidad * linea.gramosPorCantidad;
+  }
+
+  protected kcalDe(linea: LineaComida): number {
+    return (linea.alimento.kcal100g * this.gramosDe(linea)) / 100;
+  }
+
+  protected etiquetaUnidad(linea: LineaComida): string {
+    if (linea.unidad !== GRAMOS) {
+      return linea.unidad;
+    }
+    return linea.alimento.tipoMedida === LIQUIDO ? ML : G;
+  }
+
+  protected actualizarCantidad(
+    indice: number,
+    valor: string | null | undefined,
+  ): void {
+    const numero = Number(valor);
+    const cantidad = Number.isFinite(numero) && numero > 0 ? numero : 0;
+    this.lineas.update((lineas) =>
+      lineas.map((linea, i) => (i === indice ? { ...linea, cantidad } : linea)),
+    );
+  }
+
+  protected quitar(indice: number): void {
+    this.lineas.update((lineas) => lineas.filter((_, i) => i !== indice));
+  }
+
+  async confirmar(): Promise<void> {
+    if (!this.puedeConfirmar()) {
+      return;
+    }
+    this.mensaje.set(null);
+    try {
+      const perfil = await this.perfilRepository.obtenerUltimoUsado();
+      if (!perfil) {
+        return;
+      }
+      await this.insertarComida.confirmar(perfil.id, {
+        titulo: this.titulo(),
+        tipoComida: this.tipoComida(),
+        plantillaId: this.plantillaId,
+        lineas: this.lineas(),
+      });
+      this.router.navigate(['/inicio']);
+    } catch (error) {
+      this.mensaje.set(`Error al guardar: ${error}`);
+    }
+  }
+}
