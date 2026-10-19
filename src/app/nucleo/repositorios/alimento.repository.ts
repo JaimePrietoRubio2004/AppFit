@@ -17,6 +17,8 @@ export interface AlimentoRepository {
   buscarPorTexto(texto: string): Promise<Alimento[]>;
 
   existeCatalogoSemilla(): Promise<boolean>;
+
+  listarNombres(): Promise<string[]>;
 }
 
 export const ALIMENTO_REPOSITORY = new InjectionToken<AlimentoRepository>(

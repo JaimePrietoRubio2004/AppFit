@@ -159,8 +159,12 @@ export class AlimentoSqlite implements AlimentoRepository {
     const palabras = normalizarTexto(texto).split(/\s+/).filter(Boolean);
     return ((resultado.values ?? []) as FilaAlimento[])
       .filter((fila) => {
-        const candidato = normalizarTexto(`${fila.nombre} ${fila.marca ?? ''}`);
-        return palabras.every((palabra) => candidato.includes(palabra));
+        const palabrasFila = normalizarTexto(
+          `${fila.nombre} ${fila.marca ?? ''}`,
+        ).split(/[^a-z0-9]+/);
+        return palabras.every((palabra) =>
+          palabrasFila.some((palabraFila) => palabraFila.startsWith(palabra)),
+        );
       })
       .slice(0, 30)
       .map(filaAAlimento);
@@ -173,5 +177,13 @@ export class AlimentoSqlite implements AlimentoRepository {
       false,
     );
     return (resultado.values?.length ?? 0) > 0;
+  }
+
+  async listarNombres(): Promise<string[]> {
+    const db = await this.baseDatos.obtenerConexion();
+    const resultado = await db.query('SELECT * FROM alimento', [], false);
+    return ((resultado.values ?? []) as { nombre: string }[]).map(
+      (fila) => fila.nombre,
+    );
   }
 }
