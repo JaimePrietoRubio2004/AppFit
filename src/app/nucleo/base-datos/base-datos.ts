@@ -85,6 +85,23 @@ CREATE TABLE IF NOT EXISTS perfil_alimento (
   PRIMARY KEY (perfil_id, alimento_id)
 );
 
+CREATE TABLE IF NOT EXISTS plantilla_comida (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  perfil_id INTEGER NOT NULL REFERENCES perfil(id) ON DELETE CASCADE,
+  nombre TEXT NOT NULL,
+  tipo_comida_sugerido TEXT NOT NULL CHECK (tipo_comida_sugerido IN ('desayuno', 'almuerzo', 'comida', 'merienda', 'cena', 'otro')),
+  veces_usada INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS plantilla_comida_linea (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  plantilla_id INTEGER NOT NULL REFERENCES plantilla_comida(id) ON DELETE CASCADE,
+  alimento_id INTEGER NOT NULL REFERENCES alimento(id) ON DELETE CASCADE,
+  cantidad REAL NOT NULL,
+  unidad TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_plantilla_comida_perfil ON plantilla_comida (perfil_id);
 CREATE INDEX IF NOT EXISTS idx_registro_consumo_perfil_fecha ON registro_consumo (perfil_id, fecha);
 `;
 
