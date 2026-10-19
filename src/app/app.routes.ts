@@ -60,6 +60,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'editar-alimento',
+    loadComponent: () =>
+      import('./funcionalidades/editar-alimento/editar-alimento.component').then(
+        (m) => m.EditarAlimentoComponent,
+      ),
+  },
+  {
+    path: 'editar-alimento/:id',
+    loadComponent: () =>
+      import('./funcionalidades/editar-alimento/editar-alimento.component').then(
+        (m) => m.EditarAlimentoComponent,
+      ),
+  },
+  {
     path: '',
     redirectTo: 'inicio',
     pathMatch: 'full',

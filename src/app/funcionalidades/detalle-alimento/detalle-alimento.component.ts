@@ -21,6 +21,7 @@ import {
   IonButton,
   IonSegment,
   IonSegmentButton,
+  ViewWillEnter,
 } from '@ionic/angular';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
@@ -62,7 +63,7 @@ const MANUAL = 'manual';
     IonSegmentButton,
   ],
 })
-export class DetalleAlimentoComponent implements OnInit {
+export class DetalleAlimentoComponent implements OnInit, ViewWillEnter {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly alimentoRepository = inject(ALIMENTO_REPOSITORY);
@@ -146,6 +147,20 @@ export class DetalleAlimentoComponent implements OnInit {
         this.modo.set(UNIDAD);
         this.cantidad.set(uso.ultimaCantidad);
       }
+    }
+  }
+
+  async ionViewWillEnter(): Promise<void> {
+    const actual = this.alimento();
+    if (actual) {
+      this.alimento.set(await this.alimentoRepository.obtenerPorId(actual.id));
+    }
+  }
+
+  editar(): void {
+    const alimento = this.alimento();
+    if (alimento) {
+      this.router.navigate(['/editar-alimento', alimento.id]);
     }
   }
 

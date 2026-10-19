@@ -20,6 +20,7 @@ import { ResolverAlimento } from '../../nucleo/servicios/resolver-alimento';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { PERFIL_ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/perfil-alimento.repository';
 
+const NO_ENCONTRADO = 'no_encontrado';
 @Component({
   selector: 'app-anadir-alimento',
   templateUrl: './anadir-alimento.component.html',
@@ -53,6 +54,7 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
   protected readonly mensaje = signal<string | null>(null);
   protected readonly favoritos = signal<Alimento[]>([]);
   protected readonly masUsados = signal<Alimento[]>([]);
+  protected readonly codigoPendiente = signal<string | null>(null);
 
   async ionViewWillEnter(): Promise<void> {
     await this.cargarListas();
@@ -64,7 +66,7 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
 
   async escanear(): Promise<void> {
     this.mensaje.set(null);
-
+    this.codigoPendiente.set(null);
     try {
       const resultadoEscaneo = await this.escanerCodigoBarras.escanear();
       if (!resultadoEscaneo.escaneado) {
@@ -76,6 +78,9 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
       );
       if (!resolucion.encontrado) {
         this.mensaje.set(this.mensajeResolucion(resolucion.motivo));
+        if (resolucion.motivo === NO_ENCONTRADO) {
+          this.codigoPendiente.set(resultadoEscaneo.codigo);
+        }
         return;
       }
       this.router.navigate(['/detalle-alimento', resolucion.alimento.id]);
@@ -99,6 +104,18 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
 
   abrir(alimento: Alimento): void {
     this.router.navigate(['/detalle-alimento', alimento.id]);
+  }
+
+  crearAlimento(nombre?: string): void {
+    this.router.navigate(['/editar-alimento'], {
+      queryParams: nombre ? { nombre } : {},
+    });
+  }
+
+  crearConCodigo(codigo: string): void {
+    this.router.navigate(['/editar-alimento'], {
+      queryParams: { codigo },
+    });
   }
 
   private async cargarListas(): Promise<void> {

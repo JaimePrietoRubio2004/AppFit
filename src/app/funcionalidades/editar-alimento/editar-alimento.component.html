@@ -1,0 +1,102 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{
+      existente() ? "Editar alimento" : "Crear alimento"
+    }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (existente()?.codigoBarras; as codigoGuardado) {
+    <p>Código de barras: {{ codigoGuardado }}</p>
+  } @else if (codigo()) {
+    <p>Código de barras: {{ codigo() }}</p>
+  }
+
+  <ion-item>
+    <ion-label position="stacked">Nombre</ion-label>
+    <ion-input
+      [value]="nombreTexto()"
+      (ionInput)="actualizarTexto(nombreTexto, $event.detail.value)"
+    ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">Marca (opcional)</ion-label>
+    <ion-input
+      [value]="marcaTexto()"
+      (ionInput)="actualizarTexto(marcaTexto, $event.detail.value)"
+    ></ion-input>
+  </ion-item>
+
+  <ion-segment
+    [value]="tipoMedida()"
+    (ionChange)="
+      tipoMedida.set($event.detail.value === 'liquido' ? 'liquido' : 'solido')
+    "
+  >
+    <ion-segment-button value="solido"
+      ><ion-label>Sólido (g)</ion-label></ion-segment-button
+    >
+    <ion-segment-button value="liquido"
+      ><ion-label>Líquido (ml)</ion-label></ion-segment-button
+    >
+  </ion-segment>
+
+  <h3>Valores por 100 {{ tipoMedida() === "liquido" ? "ml" : "g" }}</h3>
+
+  @for (campo of camposObligatorios; track campo.etiqueta) {
+    <ion-item>
+      <ion-label position="stacked">{{ campo.etiqueta }}</ion-label>
+      <ion-input
+        type="number"
+        step="0.1"
+        [value]="campo.texto()"
+        (ionInput)="actualizarTexto(campo.texto, $event.detail.value)"
+      ></ion-input>
+    </ion-item>
+  }
+
+  <h3>Opcionales (se guardan, pero no se muestran)</h3>
+
+  @for (campo of camposOpcionales; track campo.etiqueta) {
+    <ion-item>
+      <ion-label position="stacked">{{ campo.etiqueta }}</ion-label>
+      <ion-input
+        type="number"
+        step="0.01"
+        [value]="campo.texto()"
+        (ionInput)="actualizarTexto(campo.texto, $event.detail.value)"
+      ></ion-input>
+    </ion-item>
+  }
+
+  <ion-item>
+    <ion-toggle
+      [checked]="esEstimado()"
+      (ionChange)="esEstimado.set($event.detail.checked)"
+      >Valores estimados (no proceden de una etiqueta)</ion-toggle
+    >
+  </ion-item>
+
+  @if (avisoKcal(); as aviso) {
+    <ion-text color="medium"
+      ><p>{{ aviso }}</p></ion-text
+    >
+  }
+
+  @if (existente()) {
+    <p>
+      Los cambios solo afectan a los registros que hagas a partir de ahora; los
+      ya guardados conservan sus valores.
+    </p>
+  }
+
+  <ion-button expand="block" [disabled]="!valido()" (click)="guardar()"
+    >Guardar</ion-button
+  >
+
+  @if (mensaje()) {
+    <p>{{ mensaje() }}</p>
+  }
+</ion-content>

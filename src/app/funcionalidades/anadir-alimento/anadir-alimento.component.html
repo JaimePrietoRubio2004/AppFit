@@ -8,6 +8,9 @@
   <ion-button expand="block" (click)="escanear()">
     Escanear código de barras</ion-button
   >
+  <ion-button expand="block" fill="outline" (click)="crearAlimento()"
+    >Crear alimento</ion-button
+  >
   <ng-template #fila let-alimento>
     <ion-item button (click)="abrir(alimento)">
       <ion-label>
@@ -37,6 +40,12 @@
         />
       } @empty {
         <ion-item><ion-label>Sin resultados</ion-label></ion-item>
+        <ion-button
+          expand="block"
+          fill="clear"
+          (click)="crearAlimento(textoBusqueda())"
+          >Crear «{{ textoBusqueda() }}»</ion-button
+        >
       }
     </ion-list>
   } @else {
@@ -63,5 +72,10 @@
   }
   @if (mensaje()) {
     <p>{{ mensaje() }}</p>
+  }
+  @if (codigoPendiente(); as codigo) {
+    <ion-button expand="block" (click)="crearConCodigo(codigo)"
+      >Crear alimento con el código {{ codigo }}</ion-button
+    >
   }
 </ion-content>
