@@ -11,6 +11,7 @@ import {
   IonItem,
   IonLabel,
   ViewWillEnter,
+  AlertController,
 } from '@ionic/angular';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
@@ -19,6 +20,16 @@ import { EscanerCodigoBarras } from '../../nucleo/servicios/escaner-codigo-barra
 import { ResolverAlimento } from '../../nucleo/servicios/resolver-alimento';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { PERFIL_ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/perfil-alimento.repository';
+import { PLANTILLA_COMIDA_REPOSITORY } from '../../nucleo/repositorios/plantilla-comida.repository';
+import { REGISTRO_CONSUMO_REPOSITORY } from '../../nucleo/repositorios/registro-consumo.repository';
+import { PlantillaComida } from '../../nucleo/modelos/plantilla-comida.model';
+import { InsertarComida } from '../../nucleo/servicios/insertar-comida';
+import {
+  GrupoComida,
+  agruparPorComida,
+  etiquetaComida,
+} from '../../nucleo/utilidades/comidas';
+import { fechaLocal, sumarDias } from '../../nucleo/utilidades/fecha';
 
 const NO_ENCONTRADO = 'no_encontrado';
 @Component({
@@ -48,6 +59,14 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
   private readonly perfilAlimentoRepository = inject(
     PERFIL_ALIMENTO_REPOSITORY,
   );
+  private readonly plantillaComidaRepository = inject(
+    PLANTILLA_COMIDA_REPOSITORY,
+  );
+  private readonly registroConsumoRepository = inject(
+    REGISTRO_CONSUMO_REPOSITORY,
+  );
+  private readonly insertarComida = inject(InsertarComida);
+  private readonly alertController = inject(AlertController);
 
   protected readonly textoBusqueda = signal('');
   protected readonly resultados = signal<Alimento[]>([]);
@@ -55,6 +74,9 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
   protected readonly favoritos = signal<Alimento[]>([]);
   protected readonly masUsados = signal<Alimento[]>([]);
   protected readonly codigoPendiente = signal<string | null>(null);
+  protected readonly plantillas = signal<PlantillaComida[]>([]);
+  protected readonly comidasAyer = signal<GrupoComida[]>([]);
+  protected readonly etiquetaComida = etiquetaComida;
 
   async ionViewWillEnter(): Promise<void> {
     await this.cargarListas();
@@ -118,6 +140,49 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
     });
   }
 
+  protected kcalDe(grupo: GrupoComida): number {
+    return grupo.registros.reduce((suma, registro) => suma + registro.kcal, 0);
+  }
+
+  async repetirDeAyer(grupo: GrupoComida): Promise<void> {
+    await this.insertarComida.proponerDesdeRegistro(
+      `Repetir ${etiquetaComida(grupo.tipo).toLowerCase()} de ayer`,
+      grupo.tipo,
+      grupo.registros,
+    );
+    this.router.navigate(['/insertar-comida']);
+  }
+
+  async usarPlantilla(plantilla: PlantillaComida): Promise<void> {
+    await this.insertarComida.proponerDesdePlantilla(plantilla);
+    this.router.navigate(['/insertar-comida']);
+  }
+
+  async pedirEliminarPlantilla(plantilla: PlantillaComida): Promise<void> {
+    const alerta = await this.alertController.create({
+      header: 'Eliminar plantilla',
+      message: `Se borrará la plantilla «${plantilla.nombre}». Los registros que ya hiciste con ella no cambian.`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: () => this.eliminarPlantilla(plantilla.id),
+        },
+      ],
+    });
+    await alerta.present();
+  }
+
+  private async eliminarPlantilla(id: number): Promise<void> {
+    try {
+      await this.plantillaComidaRepository.eliminar(id);
+      await this.cargarListas();
+    } catch (error) {
+      this.mensaje.set(`Error al eliminar la plantilla: ${error}`);
+    }
+  }
+
   private async cargarListas(): Promise<void> {
     const perfil = await this.perfilRepository.obtenerUltimoUsado();
     if (!perfil) {
@@ -133,6 +198,12 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
     );
     this.favoritos.set(favoritos);
     this.masUsados.set(masUsados.filter((a) => !idsFavoritos.has(a.id)));
+    this.plantillas.set(await this.plantillaComidaRepository.listar(perfil.id));
+    const ayer = await this.registroConsumoRepository.obtenerPorDia(
+      perfil.id,
+      sumarDias(fechaLocal(), -1),
+    );
+    this.comidasAyer.set(agruparPorComida(ayer));
   }
 
   private mensajeEscaneo(

@@ -11,6 +11,7 @@ import {
   IonItem,
   IonLabel,
   ViewWillEnter,
+  ToastController,
 } from '@ionic/angular';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { REGISTRO_CONSUMO_REPOSITORY } from '../../nucleo/repositorios/registro-consumo.repository';
@@ -24,6 +25,10 @@ import {
   fechaLocal,
   sumarDias,
 } from '../../nucleo/utilidades/fecha';
+import { Router } from '@angular/router';
+import { PLANTILLA_COMIDA_REPOSITORY } from '../../nucleo/repositorios/plantilla-comida.repository';
+import { InsertarComida } from '../../nucleo/servicios/insertar-comida';
+import { GrupoComida, agruparPorComida } from '../../nucleo/utilidades/comidas';
 
 const DIAS_POR_TANDA = 30;
 
@@ -59,6 +64,12 @@ export class HistorialComponent implements OnInit, ViewWillEnter {
   );
   private readonly alimentoRepository = inject(ALIMENTO_REPOSITORY);
   private readonly alertController = inject(AlertController);
+  private readonly router = inject(Router);
+  private readonly toastController = inject(ToastController);
+  private readonly plantillaComidaRepository = inject(
+    PLANTILLA_COMIDA_REPOSITORY,
+  );
+  private readonly insertarComida = inject(InsertarComida);
 
   protected readonly dias = signal<DiaHistorial[]>([]);
   protected readonly nombresAlimento = signal<Record<number, string>>({});
@@ -89,6 +100,76 @@ export class HistorialComponent implements OnInit, ViewWillEnter {
 
   protected alternarDia(fecha: string): void {
     this.diaAbierto.set(this.diaAbierto() === fecha ? null : fecha);
+  }
+
+  protected gruposDe(dia: DiaHistorial): GrupoComida[] {
+    return agruparPorComida(dia.registros);
+  }
+
+  protected async repetir(grupo: GrupoComida): Promise<void> {
+    await this.insertarComida.proponerDesdeRegistro(
+      `Repetir ${this.etiquetaComida(grupo.tipo).toLowerCase()}`,
+      grupo.tipo,
+      grupo.registros,
+    );
+    this.router.navigate(['/insertar-comida']);
+  }
+
+  protected async pedirNombrePlantilla(grupo: GrupoComida): Promise<void> {
+    const alerta = await this.alertController.create({
+      header: 'Guardar como plantilla',
+      inputs: [
+        {
+          name: 'nombre',
+          type: 'text',
+          placeholder: 'Nombre (p. ej. Mi bocadillo)',
+        },
+      ],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Guardar',
+          handler: (datos: { nombre?: string }) => {
+            const nombre = (datos.nombre ?? '').trim();
+            if (nombre === '') {
+              return false;
+            }
+            void this.guardarPlantilla(grupo, nombre);
+            return true;
+          },
+        },
+      ],
+    });
+    await alerta.present();
+  }
+
+  private async guardarPlantilla(
+    grupo: GrupoComida,
+    nombre: string,
+  ): Promise<void> {
+    try {
+      const perfil = await this.perfilRepository.obtenerUltimoUsado();
+      if (!perfil) {
+        return;
+      }
+      await this.plantillaComidaRepository.crear({
+        perfilId: perfil.id,
+        nombre,
+        tipoComidaSugerido: grupo.tipo,
+        lineas: grupo.registros.map((registro) => ({
+          alimentoId: registro.alimentoId,
+          cantidad: registro.cantidadIntroducida,
+          unidad: registro.unidadIntroducida,
+        })),
+      });
+      const aviso = await this.toastController.create({
+        message: `Plantilla «${nombre}» guardada.`,
+        duration: 2000,
+      });
+      await aviso.present();
+    } catch (error) {
+      this.mensaje.set(`Error al guardar la plantilla: ${error}`);
+    }
   }
 
   protected async verMas(): Promise<void> {

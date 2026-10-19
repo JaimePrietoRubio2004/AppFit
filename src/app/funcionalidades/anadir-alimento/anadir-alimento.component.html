@@ -49,6 +49,51 @@
       }
     </ion-list>
   } @else {
+    @if (comidasAyer().length > 0) {
+      <h2>Repetir de ayer</h2>
+      <ion-list>
+        @for (grupo of comidasAyer(); track grupo.tipo) {
+          <ion-item button (click)="repetirDeAyer(grupo)">
+            <ion-label>
+              <h3>{{ etiquetaComida(grupo.tipo) }}</h3>
+              <p>
+                {{ grupo.registros.length }} alimento(s) ·
+                {{ kcalDe(grupo) | number: "1.0-0" }} kcal
+              </p>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    }
+    @if (plantillas().length > 0) {
+      <h2>Plantillas</h2>
+      <ion-list>
+        @for (plantilla of plantillas(); track plantilla.id) {
+          <ion-item>
+            <ion-label>
+              <h3>{{ plantilla.nombre }}</h3>
+              <p>
+                {{ plantilla.lineas.length }} alimento(s) ·
+                {{ etiquetaComida(plantilla.tipoComidaSugerido) }}
+              </p>
+            </ion-label>
+            <ion-button
+              slot="end"
+              fill="clear"
+              (click)="usarPlantilla(plantilla)"
+              >Usar</ion-button
+            >
+            <ion-button
+              slot="end"
+              fill="clear"
+              color="danger"
+              (click)="pedirEliminarPlantilla(plantilla)"
+              >Eliminar</ion-button
+            >
+          </ion-item>
+        }
+      </ion-list>
+    }
     @if (favoritos().length > 0) {
       <h2>Favoritos</h2>
       <ion-list>

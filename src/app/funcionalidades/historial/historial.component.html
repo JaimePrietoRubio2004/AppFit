@@ -24,22 +24,41 @@
       </ion-item>
 
       @if (diaAbierto() === dia.fecha) {
-        @for (registro of dia.registros; track registro.id) {
-          <ion-item class="registro">
+        @for (grupo of gruposDe(dia); track grupo.tipo) {
+          <ion-item class="grupo" lines="none">
             <ion-label>
-              <h3>{{ nombresAlimento()[registro.alimentoId] }}</h3>
-              <p class="cifras">
-                {{ etiquetaComida(registro.tipoComida) }} ·
-                {{ descripcionCantidad(registro) }} ·
-                {{ registro.kcal | number: "1.0-0" }} kcal
-              </p>
+              <h3>{{ etiquetaComida(grupo.tipo) }}</h3>
             </ion-label>
+          </ion-item>
+
+          @for (registro of grupo.registros; track registro.id) {
+            <ion-item class="registro">
+              <ion-label>
+                <h3>{{ nombresAlimento()[registro.alimentoId] }}</h3>
+                <p class="cifras">
+                  {{ descripcionCantidad(registro) }} ·
+                  {{ registro.kcal | number: "1.0-0" }} kcal
+                </p>
+              </ion-label>
+              <ion-button
+                slot="end"
+                fill="clear"
+                color="danger"
+                (click)="pedirEliminar(registro)"
+                >Eliminar</ion-button
+              >
+            </ion-item>
+          }
+
+          <ion-item class="registro" lines="none">
+            <ion-button size="small" fill="outline" (click)="repetir(grupo)"
+              >Repetir hoy</ion-button
+            >
             <ion-button
-              slot="end"
-              fill="clear"
-              color="danger"
-              (click)="pedirEliminar(registro)"
-              >Eliminar</ion-button
+              size="small"
+              fill="outline"
+              (click)="pedirNombrePlantilla(grupo)"
+              >Guardar como plantilla</ion-button
             >
           </ion-item>
         }
