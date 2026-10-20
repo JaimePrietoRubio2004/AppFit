@@ -1,0 +1,11 @@
+.acciones-ocr {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.texto-leido {
+  user-select: text;
+  white-space: pre-wrap;
+  font-size: 13px;
+}

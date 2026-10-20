@@ -43,6 +43,21 @@
     >
   </ion-segment>
 
+  <div class="acciones-ocr">
+    <ion-button
+      fill="outline"
+      [disabled]="leyendo()"
+      (click)="leerEtiqueta('camara')"
+      >Escanear tabla</ion-button
+    >
+    <ion-button
+      fill="outline"
+      [disabled]="leyendo()"
+      (click)="leerEtiqueta('galeria')"
+      >Desde galería</ion-button
+    >
+  </div>
+
   <h3>Valores por 100 {{ tipoMedida() === "liquido" ? "ml" : "g" }}</h3>
 
   @for (campo of camposObligatorios; track campo.etiqueta) {
@@ -98,5 +113,12 @@
 
   @if (mensaje()) {
     <p>{{ mensaje() }}</p>
+  }
+
+  @if (textoLeido(); as texto) {
+    <details>
+      <summary>Texto leído de la etiqueta</summary>
+      <pre class="texto-leido">{{ texto }}</pre>
+    </details>
   }
 </ion-content>

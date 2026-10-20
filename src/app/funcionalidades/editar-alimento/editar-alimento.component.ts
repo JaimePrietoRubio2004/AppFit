@@ -25,6 +25,10 @@ import {
 } from '@ionic/angular';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
 import { Alimento, TipoMedida } from '../../nucleo/modelos/alimento.model';
+import {
+  LeerTablaNutricional,
+  FuenteImagen,
+} from '../../nucleo/servicios/leer-tabla-nutricional';
 
 const SOLIDO = 'solido';
 
@@ -51,6 +55,7 @@ export class EditarAlimentoComponent implements OnInit {
   private readonly alimentoRepository = inject(ALIMENTO_REPOSITORY);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
+  private readonly leerTabla = inject(LeerTablaNutricional);
 
   readonly id = input<string>();
   readonly codigo = input<string>();
@@ -70,6 +75,9 @@ export class EditarAlimentoComponent implements OnInit {
   protected readonly salTexto = signal('');
   protected readonly esEstimado = signal(false);
   protected readonly mensaje = signal<string | null>(null);
+  protected readonly leyendo = signal(false);
+  protected readonly textoLeido = signal<string | null>(null);
+  protected readonly porOcr = signal(false);
 
   protected readonly camposObligatorios = [
     { etiqueta: 'Calorías (kcal)', texto: this.kcalTexto },
@@ -164,6 +172,55 @@ export class EditarAlimentoComponent implements OnInit {
     senal.set(valor ?? '');
   }
 
+  async leerEtiqueta(fuente: FuenteImagen): Promise<void> {
+    this.mensaje.set(null);
+    this.leyendo.set(true);
+    try {
+      const lectura = await this.leerTabla.leer(fuente);
+      switch (lectura.estado) {
+        case 'no_disponible':
+          this.mensaje.set('La lectura de etiqueta solo funciona en el móvil');
+          return;
+        case 'cancelado':
+          return;
+        case 'error':
+          this.mensaje.set(`No se pudo leer la imagen: ${lectura.mensaje}`);
+          return;
+      }
+      const destinos: [number | null, WritableSignal<string>][] = [
+        [lectura.tabla.kcal100g, this.kcalTexto],
+        [lectura.tabla.proteina100g, this.proteinaTexto],
+        [lectura.tabla.grasa100g, this.grasaTexto],
+        [lectura.tabla.carbohidrato100g, this.carbohidratoTexto],
+        [lectura.tabla.azucares100g, this.azucaresTexto],
+        [lectura.tabla.saturadas100g, this.saturadasTexto],
+        [lectura.tabla.fibra100g, this.fibraTexto],
+        [lectura.tabla.sal100g, this.salTexto],
+      ];
+      let leidos = 0;
+      for (const [valor, senal] of destinos) {
+        if (valor !== null) {
+          senal.set(String(valor));
+          leidos++;
+        }
+      }
+      this.textoLeido.set(lectura.texto);
+      if (leidos === 0) {
+        this.mensaje.set(
+          'No se ha reconocido ninguna tabla nutricional. Prueba con más luz y la etiqueta bien enfocada y recta.',
+        );
+        return;
+      }
+      this.porOcr.set(true);
+      this.esEstimado.set(false);
+      this.mensaje.set(
+        `Se han leído ${leidos} de 8 valores. Compáralos con la etiqueta antes de guardar.`,
+      );
+    } finally {
+      this.leyendo.set(false);
+    }
+  }
+
   async guardar(): Promise<void> {
     const kcal = this.kcal();
     const proteina = this.proteina();
@@ -208,7 +265,7 @@ export class EditarAlimentoComponent implements OnInit {
         gramosPorUnidad: null,
         unidadOrigen: null,
         kcalAlcohol100: null,
-        origen: 'manual',
+        origen: this.porOcr() ? 'ocr' : 'manual',
         fechaCache: null,
       });
       this.router.navigate(['/detalle-alimento', creado.id], {
