@@ -56,6 +56,36 @@
     }
   </ion-list>
 
+  @if (!buscando()) {
+    <ion-button fill="outline" (click)="abrirBusqueda()"
+      >+ Añadir alimento</ion-button
+    >
+  } @else {
+    <ion-searchbar
+      placeholder="Buscar alimento"
+      [debounce]="200"
+      (ionInput)="buscar($event.detail.value)"
+    ></ion-searchbar>
+    <ion-list>
+      @for (alimento of resultados(); track alimento.id) {
+        <ion-item button (click)="anadir(alimento)">
+          <ion-label>
+            <h3>{{ alimento.nombre }}</h3>
+            <p>
+              {{ alimento.kcal100g | number: "1.0-0" }} kcal /
+              {{ alimento.tipoMedida === "liquido" ? "100 ml" : "100 g" }}
+            </p>
+          </ion-label>
+        </ion-item>
+      } @empty {
+        @if (textoBusqueda() !== "") {
+          <ion-item><ion-label>Sin resultados</ion-label></ion-item>
+        }
+      }
+    </ion-list>
+    <ion-button fill="clear" (click)="cerrarBusqueda()">Cancelar</ion-button>
+  }
+
   <p class="cifras">
     <strong>Total: {{ totalKcal() | number: "1.0-0" }} kcal</strong>
   </p>
