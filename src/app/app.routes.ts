@@ -3,14 +3,6 @@ import { ArranqueGuards } from './nucleo/guardias/arranque.guards';
 
 export const routes: Routes = [
   {
-    path: 'inicio',
-    canActivate: [ArranqueGuards],
-    loadComponent: () =>
-      import('./funcionalidades/inicio/inicio.component').then(
-        (m) => m.InicioComponent,
-      ),
-  },
-  {
     path: 'anadir-alimento',
     loadComponent: () =>
       import('./funcionalidades/anadir-alimento/anadir-alimento.component').then(
@@ -39,27 +31,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'progreso',
-    loadComponent: () =>
-      import('./funcionalidades/progreso/progreso.component').then(
-        (m) => m.ProgresoComponent,
-      ),
-  },
-  {
-    path: 'historial',
-    loadComponent: () =>
-      import('./funcionalidades/historial/historial.component').then(
-        (m) => m.HistorialComponent,
-      ),
-  },
-  {
-    path: 'ajustes',
-    loadComponent: () =>
-      import('./funcionalidades/ajustes/ajustes.component').then(
-        (m) => m.AjustesComponent,
-      ),
-  },
-  {
     path: 'editar-alimento',
     loadComponent: () =>
       import('./funcionalidades/editar-alimento/editar-alimento.component').then(
@@ -82,7 +53,41 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'inicio',
-    pathMatch: 'full',
+    loadComponent: () =>
+      import('./funcionalidades/pestanas/pestanas.component').then(
+        (m) => m.PestanasComponent,
+      ),
+    children: [
+      {
+        path: 'inicio',
+        canActivate: [ArranqueGuards],
+        loadComponent: () =>
+          import('./funcionalidades/inicio/inicio.component').then(
+            (m) => m.InicioComponent,
+          ),
+      },
+      {
+        path: 'progreso',
+        loadComponent: () =>
+          import('./funcionalidades/progreso/progreso.component').then(
+            (m) => m.ProgresoComponent,
+          ),
+      },
+      {
+        path: 'historial',
+        loadComponent: () =>
+          import('./funcionalidades/historial/historial.component').then(
+            (m) => m.HistorialComponent,
+          ),
+      },
+      {
+        path: 'ajustes',
+        loadComponent: () =>
+          import('./funcionalidades/ajustes/ajustes.component').then(
+            (m) => m.AjustesComponent,
+          ),
+      },
+      { path: '', redirectTo: 'inicio', pathMatch: 'full' },
+    ],
   },
 ];

@@ -1,82 +1,53 @@
-<ion-menu contentId="contenido-inicio" [swipeGesture]="false">
-  <ion-header>
-    <ion-toolbar>
-      <ion-title>Menú</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  <ion-content>
-    <ion-list>
-      <ion-menu-toggle [autoHide]="false">
-        <ion-item button detail="false" routerLink="/progreso">
-          <ion-label>Progreso</ion-label>
-        </ion-item>
-      </ion-menu-toggle>
-      <ion-menu-toggle [autoHide]="false">
-        <ion-item button detail="false" routerLink="/historial">
-          <ion-label>Historial</ion-label>
-        </ion-item>
-      </ion-menu-toggle>
-      <ion-menu-toggle [autoHide]="false">
-        <ion-item button detail="false" routerLink="/ajustes">
-          <ion-label>Ajustes</ion-label>
-        </ion-item>
-      </ion-menu-toggle>
-    </ion-list>
-  </ion-content>
-</ion-menu>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Inicio</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-<div class="ion-page" id="contenido-inicio">
-  <ion-header>
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-menu-button></ion-menu-button>
-      </ion-buttons>
-      <ion-title>Inicio</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <p>Perfil activo: {{ textoPerfil() }}</p>
 
-  <ion-content class="ion-padding">
-    <p>Perfil activo: {{ textoPerfil() }}</p>
+  @if (objetivo(); as o) {
+    <p class="cifra-principal">
+      {{ totalKcal() | number: "1.0-0" }}
+      <span class="cifra-objetivo"
+        >/ {{ o.kcalObjetivo | number: "1.0-0" }} kcal</span
+      >
+    </p>
+    <ion-progress-bar [value]="fraccionKcal()"></ion-progress-bar>
 
-    @if (objetivo(); as o) {
-      <p class="cifra-principal">
-        {{ totalKcal() | number: "1.0-0" }}
-        <span class="cifra-objetivo"
-          >/ {{ o.kcalObjetivo | number: "1.0-0" }} kcal</span
-        >
-      </p>
-      <ion-progress-bar [value]="fraccionKcal()"></ion-progress-bar>
-
-      @if (totalKcal() > o.kcalObjetivo) {
-        <p class="superado">
-          Por encima del objetivo en
-          {{ totalKcal() - o.kcalObjetivo | number: "1.0-0" }} kcal
-        </p>
-      }
-
-      <p class="macro macro-proteina">
-        Proteína: {{ totalProteina() | number: "1.0-0" }} /
-        {{ o.proteinaG | number: "1.0-0" }} g
-      </p>
-      <p class="macro macro-grasa">
-        Grasa: {{ totalGrasa() | number: "1.0-0" }} /
-        {{ o.grasaG | number: "1.0-0" }} g
-      </p>
-      <p class="macro macro-carbohidrato">
-        Hidratos: {{ totalCarbohidrato() | number: "1.0-0" }} /
-        {{ o.carbohidratoG | number: "1.0-0" }} g
-      </p>
-    } @else {
-      <p>
-        Hoy: {{ totalKcal() | number: "1.0-0" }} kcal ·
-        {{ totalProteina() | number: "1.0-1" }} g proteína ·
-        {{ totalGrasa() | number: "1.0-1" }} g grasa ·
-        {{ totalCarbohidrato() | number: "1.0-1" }} g hidratos
+    @if (totalKcal() > o.kcalObjetivo) {
+      <p class="superado">
+        Por encima del objetivo en
+        {{ totalKcal() - o.kcalObjetivo | number: "1.0-0" }} kcal
       </p>
     }
 
-    <ion-button expand="block" routerLink="/anadir-alimento">
-      Añadir alimento</ion-button
-    >
-  </ion-content>
-</div>
+    <p class="macro macro-proteina">
+      Proteína: {{ totalProteina() | number: "1.0-0" }} /
+      {{ o.proteinaG | number: "1.0-0" }} g
+    </p>
+    <p class="macro macro-grasa">
+      Grasa: {{ totalGrasa() | number: "1.0-0" }} /
+      {{ o.grasaG | number: "1.0-0" }} g
+    </p>
+    <p class="macro macro-carbohidrato">
+      Hidratos: {{ totalCarbohidrato() | number: "1.0-0" }} /
+      {{ o.carbohidratoG | number: "1.0-0" }} g
+    </p>
+  } @else {
+    <p>
+      Hoy: {{ totalKcal() | number: "1.0-0" }} kcal ·
+      {{ totalProteina() | number: "1.0-1" }} g proteína ·
+      {{ totalGrasa() | number: "1.0-1" }} g grasa ·
+      {{ totalCarbohidrato() | number: "1.0-1" }} g hidratos
+    </p>
+  }
+
+  <ion-button expand="block" routerLink="/anadir-alimento">
+    Añadir consumición</ion-button
+  >
+  <ion-button expand="block" fill="outline" routerLink="/editar-alimento">
+    Añadir alimento</ion-button
+  >
+</ion-content>

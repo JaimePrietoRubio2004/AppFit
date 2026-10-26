@@ -7,15 +7,8 @@ import {
   IonTitle,
   IonContent,
   IonButton,
-  IonButtons,
   IonProgressBar,
   ViewWillEnter,
-  IonMenu,
-  IonMenuButton,
-  IonList,
-  IonMenuToggle,
-  IonItem,
-  IonLabel,
 } from '@ionic/angular';
 import { ObjetivoPerfil } from '../../nucleo/servicios/objetivo-perfil';
 import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
@@ -28,7 +21,6 @@ import { fechaLocal } from '../../nucleo/utilidades/fecha';
   templateUrl: './inicio.component.html',
   styleUrls: ['./inicio.component.scss'],
   imports: [
-    IonButtons,
     IonButton,
     IonHeader,
     IonToolbar,
@@ -37,12 +29,6 @@ import { fechaLocal } from '../../nucleo/utilidades/fecha';
     RouterLink,
     DecimalPipe,
     IonProgressBar,
-    IonMenu,
-    IonMenuButton,
-    IonMenuToggle,
-    IonList,
-    IonItem,
-    IonLabel,
   ],
 })
 export class InicioComponent implements OnInit, ViewWillEnter {
@@ -77,7 +63,7 @@ export class InicioComponent implements OnInit, ViewWillEnter {
     if (!actual) {
       return;
     }
-    this.textoPerfil.set(`${actual.nombre} (id ${actual.id})`);
+    this.textoPerfil.set(`${actual.nombre}`);
     this.objetivo.set(await this.objetivoPerfil.obtener(actual));
 
     const hoy = fechaLocal();

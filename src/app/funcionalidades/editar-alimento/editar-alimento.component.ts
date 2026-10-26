@@ -29,6 +29,8 @@ import {
   LeerTablaNutricional,
   FuenteImagen,
 } from '../../nucleo/servicios/leer-tabla-nutricional';
+import { EscanerCodigoBarras } from '../../nucleo/servicios/escaner-codigo-barras';
+import { ResolverAlimento } from '../../nucleo/servicios/resolver-alimento';
 
 const SOLIDO = 'solido';
 
@@ -56,6 +58,8 @@ export class EditarAlimentoComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly leerTabla = inject(LeerTablaNutricional);
+  private readonly escanerCodigoBarras = inject(EscanerCodigoBarras);
+  private readonly resolverAlimento = inject(ResolverAlimento);
 
   readonly id = input<string>();
   readonly codigo = input<string>();
@@ -78,7 +82,11 @@ export class EditarAlimentoComponent implements OnInit {
   protected readonly leyendo = signal(false);
   protected readonly textoLeido = signal<string | null>(null);
   protected readonly porOcr = signal(false);
+  protected readonly codigoLeido = signal<string | null>(null);
 
+  protected readonly codigoActual = computed(
+    () => this.codigoLeido() ?? this.codigo() ?? null,
+  );
   protected readonly camposObligatorios = [
     { etiqueta: 'Calorías (kcal)', texto: this.kcalTexto },
     { etiqueta: 'Proteína (g)', texto: this.proteinaTexto },
@@ -260,7 +268,7 @@ export class EditarAlimentoComponent implements OnInit {
       }
       const creado = await this.alimentoRepository.crear({
         ...valores,
-        codigoBarras: this.codigo() ?? null,
+        codigoBarras: this.codigoActual(),
         nombreUnidad: null,
         gramosPorUnidad: null,
         unidadOrigen: null,
@@ -273,6 +281,38 @@ export class EditarAlimentoComponent implements OnInit {
       });
     } catch (error) {
       this.mensaje.set(`Error al guardar: ${error}`);
+    }
+  }
+
+  async escanear(): Promise<void> {
+    this.mensaje.set(null);
+    try {
+      const lectura = await this.escanerCodigoBarras.escanear();
+      if (!lectura.escaneado) {
+        if (lectura.motivo === 'sin_permiso') {
+          this.mensaje.set('Necesito permiso de cámara para escanear');
+        } else if (lectura.motivo === 'no_disponible') {
+          this.mensaje.set('El escáner no está disponible en este dispositivo');
+        }
+        return;
+      }
+      const resolucion = await this.resolverAlimento.obtenerPorCodigoDeBarras(
+        lectura.codigo,
+      );
+      if (resolucion.encontrado) {
+        this.router.navigate(['/detalle-alimento', resolucion.alimento.id], {
+          replaceUrl: true,
+        });
+        return;
+      }
+      this.codigoLeido.set(lectura.codigo);
+      this.mensaje.set(
+        resolucion.motivo === 'sin_conexion'
+          ? 'Sin conexión: no se puede consultar el producto. Rellénalo a mano y se guardará con este código.'
+          : 'Producto no encontrado. Rellénalo a mano o con «Escanear tabla» y se guardará con este código.',
+      );
+    } catch (error) {
+      this.mensaje.set(`Error inesperado: ${error}`);
     }
   }
 }

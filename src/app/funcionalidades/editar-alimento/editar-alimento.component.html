@@ -7,10 +7,20 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  @if (id() === undefined) {
+    <ion-button expand="block" (click)="escanear()"
+      >Escanear código de barras</ion-button
+    >
+  }
+
+  @if (mensaje()) {
+    <p>{{ mensaje() }}</p>
+  }
+
   @if (existente()?.codigoBarras; as codigoGuardado) {
     <p>Código de barras: {{ codigoGuardado }}</p>
-  } @else if (codigo()) {
-    <p>Código de barras: {{ codigo() }}</p>
+  } @else if (codigoActual()) {
+    <p>Código de barras: {{ codigoActual() }}</p>
   }
 
   <ion-item>
@@ -110,10 +120,6 @@
   <ion-button expand="block" [disabled]="!valido()" (click)="guardar()"
     >Guardar</ion-button
   >
-
-  @if (mensaje()) {
-    <p>{{ mensaje() }}</p>
-  }
 
   @if (textoLeido(); as texto) {
     <details>
