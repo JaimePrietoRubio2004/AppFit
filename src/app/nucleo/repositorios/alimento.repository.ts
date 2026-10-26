@@ -19,6 +19,8 @@ export interface AlimentoRepository {
   existeCatalogoSemilla(): Promise<boolean>;
 
   listarNombres(): Promise<string[]>;
+
+  listar(limite: number, desplazamiento: number): Promise<Alimento[]>;
 }
 
 export const ALIMENTO_REPOSITORY = new InjectionToken<AlimentoRepository>(

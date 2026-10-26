@@ -48,8 +48,13 @@
     }
 
     @if (!definiendoUnidad()) {
-      <ion-button fill="clear" size="small" (click)="abrirDefinicion()">
-        {{ tieneUnidad() ? "Cambiar unidad" : "+ Definir unidad" }}
+      <ion-button
+        class="boton-unidad"
+        expand="block"
+        fill="outline"
+        (click)="abrirDefinicion()"
+      >
+        {{ tieneUnidad() ? "Cambiar unidad" : "Definir unidad" }}
       </ion-button>
     } @else {
       <ion-item>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader,
@@ -12,6 +12,8 @@ import {
   IonLabel,
   ViewWillEnter,
   AlertController,
+  IonSegment,
+  IonSegmentButton,
 } from '@ionic/angular';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
@@ -32,6 +34,18 @@ import {
 import { fechaLocal, sumarDias } from '../../nucleo/utilidades/fecha';
 
 const NO_ENCONTRADO = 'no_encontrado';
+
+const PAGINA = 20;
+const TOPE_USADOS = 200;
+
+type Pestana = 'todos' | 'favoritos' | 'usados' | 'ayer' | 'plantillas';
+const PESTANAS: Pestana[] = [
+  'todos',
+  'favoritos',
+  'usados',
+  'ayer',
+  'plantillas',
+];
 @Component({
   selector: 'app-anadir-alimento',
   templateUrl: './anadir-alimento.component.html',
@@ -48,9 +62,13 @@ const NO_ENCONTRADO = 'no_encontrado';
     IonItem,
     IonLabel,
     NgTemplateOutlet,
+    IonSegment,
+    IonSegmentButton,
   ],
 })
 export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
+  private cargandoMas = false;
+
   private readonly escanerCodigoBarras = inject(EscanerCodigoBarras);
   private readonly resolverAlimento = inject(ResolverAlimento);
   private readonly router = inject(Router);
@@ -77,6 +95,29 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
   protected readonly plantillas = signal<PlantillaComida[]>([]);
   protected readonly comidasAyer = signal<GrupoComida[]>([]);
   protected readonly etiquetaComida = etiquetaComida;
+  protected readonly pestana = signal<Pestana>('todos');
+  protected readonly visibles = signal(PAGINA);
+  protected readonly todos = signal<Alimento[]>([]);
+  protected readonly hayMasTodos = signal(false);
+
+  protected readonly favoritosVisibles = computed(() =>
+    this.favoritos().slice(0, this.visibles()),
+  );
+  protected readonly usadosVisibles = computed(() =>
+    this.masUsados().slice(0, this.visibles()),
+  );
+  protected readonly hayMas = computed(() => {
+    switch (this.pestana()) {
+      case 'todos':
+        return this.hayMasTodos();
+      case 'favoritos':
+        return this.favoritos().length > this.visibles();
+      case 'usados':
+        return this.masUsados().length > this.visibles();
+      default:
+        return false;
+    }
+  });
 
   async ionViewWillEnter(): Promise<void> {
     await this.cargarListas();
@@ -128,6 +169,15 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
     this.router.navigate(['/detalle-alimento', alimento.id]);
   }
 
+  cambiarPestana(valor: string | number | null | undefined): void {
+    const pestana = PESTANAS.find((p) => p === valor);
+    if (!pestana) {
+      return;
+    }
+    this.pestana.set(pestana);
+    this.visibles.set(PAGINA);
+  }
+
   crearAlimento(nombre?: string): void {
     this.router.navigate(['/editar-alimento'], {
       queryParams: nombre ? { nombre } : {},
@@ -142,6 +192,22 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
 
   protected kcalDe(grupo: GrupoComida): number {
     return grupo.registros.reduce((suma, registro) => suma + registro.kcal, 0);
+  }
+
+  async verMas(): Promise<void> {
+    if (this.pestana() !== 'todos') {
+      this.visibles.update((v) => v + PAGINA);
+      return;
+    }
+    if (this.cargandoMas) {
+      return;
+    }
+    this.cargandoMas = true;
+    try {
+      await this.cargarTodos(this.todos().length);
+    } finally {
+      this.cargandoMas = false;
+    }
   }
 
   async repetirDeAyer(grupo: GrupoComida): Promise<void> {
@@ -183,27 +249,36 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
     }
   }
 
+  private async cargarTodos(desde: number): Promise<void> {
+    const lote = await this.alimentoRepository.listar(PAGINA + 1, desde);
+    const pagina = lote.slice(0, PAGINA);
+    this.hayMasTodos.set(lote.length > PAGINA);
+    this.todos.update((actuales) =>
+      desde === 0 ? pagina : [...actuales, ...pagina],
+    );
+  }
+
   private async cargarListas(): Promise<void> {
     const perfil = await this.perfilRepository.obtenerUltimoUsado();
     if (!perfil) {
       return;
     }
-    const favoritos = await this.perfilAlimentoRepository.listarFavorito(
-      perfil.id,
+    this.favoritos.set(
+      await this.perfilAlimentoRepository.listarFavorito(perfil.id),
     );
-    const idsFavoritos = new Set(favoritos.map((a) => a.id));
-    const masUsados = await this.perfilAlimentoRepository.listarMasUsado(
-      perfil.id,
-      10,
+    this.masUsados.set(
+      await this.perfilAlimentoRepository.listarMasUsado(
+        perfil.id,
+        TOPE_USADOS,
+      ),
     );
-    this.favoritos.set(favoritos);
-    this.masUsados.set(masUsados.filter((a) => !idsFavoritos.has(a.id)));
     this.plantillas.set(await this.plantillaComidaRepository.listar(perfil.id));
     const ayer = await this.registroConsumoRepository.obtenerPorDia(
       perfil.id,
       sumarDias(fechaLocal(), -1),
     );
     this.comidasAyer.set(agruparPorComida(ayer));
+    await this.cargarTodos(0);
   }
 
   private mensajeEscaneo(

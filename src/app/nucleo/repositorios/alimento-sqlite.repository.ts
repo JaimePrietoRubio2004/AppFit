@@ -84,6 +84,16 @@ function valoresDe(alimento: NuevoAlimento): unknown[] {
 export class AlimentoSqlite implements AlimentoRepository {
   private readonly baseDatos = inject(BaseDatos);
 
+  async listar(limite: number, desplazamiento: number): Promise<Alimento[]> {
+    const db = await this.baseDatos.obtenerConexion();
+    const resultado = await db.query(
+      'SELECT * FROM alimento ORDER BY nombre COLLATE NOCASE LIMIT ? OFFSET ?',
+      [limite, desplazamiento],
+      false,
+    );
+    return ((resultado.values ?? []) as FilaAlimento[]).map(filaAAlimento);
+  }
+
   async crear(alimento: NuevoAlimento): Promise<Alimento> {
     const db = await this.baseDatos.obtenerConexion();
     const resultado = await db.run(
