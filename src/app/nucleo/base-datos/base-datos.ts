@@ -64,8 +64,10 @@ CREATE TABLE IF NOT EXISTS registro_consumo (
   grasa_g REAL NOT NULL,
   carbohidrato_g REAL NOT NULL,
   plantilla_id INTEGER,
-  creado_en TEXT NOT NULL
+  creado_en TEXT NOT NULL,
+  es_estimado INTEGER NOT NULL DEFAULT 0
 );
+
 
 CREATE TABLE IF NOT EXISTS registro_peso (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -135,7 +137,29 @@ export class BaseDatos {
         );
     await conexion.open();
     await conexion.execute(ESQUEMA, true, false);
+    await this.migrar(conexion);
     return conexion;
+  }
+
+  private async migrar(conexion: SQLiteDBConnection): Promise<void> {
+    const columnas = await conexion.query(
+      'PRAGMA table_info(registro_consumo)',
+      [],
+      false,
+    );
+    const yaExiste = (columnas.values ?? []).some(
+      (columna) => columna.name === 'es_estimado',
+    );
+    if (yaExiste) {
+      return;
+    }
+    await conexion.execute(
+      `ALTER TABLE registro_consumo ADD COLUMN es_estimado INTEGER NOT NULL DEFAULT 0;
+     UPDATE registro_consumo SET es_estimado =
+       (SELECT es_estimado FROM alimento WHERE alimento.id = registro_consumo.alimento_id);`,
+      true,
+      false,
+    );
   }
 
   private asegurarWebStore(): Promise<void> {

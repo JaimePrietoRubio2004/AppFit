@@ -20,6 +20,14 @@
       </p>
       <p>Media diaria sobre {{ r.diasConDatos }} de 7 días con registros.</p>
 
+      @if (lectura(); as l) {
+        <p class="cifras">
+          {{ r.porcentajeEstimado | number: "1.0-0" }} % de las kcal de estos 7
+          días son estimadas.
+        </p>
+        <p class="lectura">{{ l.texto }}</p>
+      }
+
       <p class="macro macro-proteina">
         Proteína: {{ r.proteinaG | number: "1.0-0" }}
         @if (objetivo(); as o) {

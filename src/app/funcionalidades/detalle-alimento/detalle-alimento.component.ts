@@ -277,6 +277,7 @@ export class DetalleAlimentoComponent implements OnInit, ViewWillEnter {
       carboHidratoG: this.carbohidratosRacion(),
       plantillaId: null,
       creadoEn: new Date().toISOString(),
+      esEstimado: alimentoActual.esEstimado,
     };
     await this.registroConsumoRepository.guardar(nuevo);
     await this.perfilAlimentoRepository.registrarUso(

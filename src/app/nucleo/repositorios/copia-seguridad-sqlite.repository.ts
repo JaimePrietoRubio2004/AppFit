@@ -44,6 +44,14 @@ export class CopiaSeguridadSqlite implements CopiaSeguridadRepository {
         });
       }
     }
+    const consumos = copia.tablas['registro_consumo'];
+    if (consumos.length > 0 && !('es_estimado' in consumos[0])) {
+      sentencias.push({
+        statement:
+          'UPDATE registro_consumo SET es_estimado = (SELECT es_estimado FROM alimento WHERE alimento.id = registro_consumo.alimento_id)',
+        values: [],
+      });
+    }
     await db.executeSet(sentencias, true, 'no', false);
   }
 }

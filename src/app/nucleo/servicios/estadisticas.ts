@@ -10,6 +10,7 @@ interface TotalesDias {
   proteinaG: number;
   grasaG: number;
   carbohidratoG: number;
+  kcalEstimadas: number;
 }
 
 export interface PuntoSerie {
@@ -21,6 +22,7 @@ export interface PuntoSerie {
   diasConDatos: number;
   pesoKg: number | null;
   pesosEnVentana: number;
+  porcentajeEstimado: number | null;
 }
 
 function media(valores: number[]): number | null {
@@ -62,8 +64,10 @@ export class Estadisticas {
         proteinaG: 0,
         grasaG: 0,
         carbohidratoG: 0,
+        kcalEstimadas: 0,
       };
       totales.kcal += consumo.kcal;
+      totales.kcalEstimadas += consumo.esEstimado ? consumo.kcal : 0;
       totales.grasaG += consumo.grasaG;
       totales.carbohidratoG += consumo.carboHidratoG;
       totales.proteinaG += consumo.proteinaG;
@@ -82,6 +86,11 @@ export class Estadisticas {
       const pesosVentana = ventana
         .map((dia) => pesoPorDia.get(dia))
         .filter((p): p is number => p !== undefined);
+      const kcalVentana = totalesVentana.reduce((s, t) => s + t.kcal, 0);
+      const kcalEstimadasVentana = totalesVentana.reduce(
+        (s, t) => s + t.kcalEstimadas,
+        0,
+      );
       serie.push({
         fecha,
         kcal: media(totalesVentana.map((t) => t.kcal)),
@@ -91,6 +100,8 @@ export class Estadisticas {
         diasConDatos: totalesVentana.length,
         pesoKg: media(pesosVentana),
         pesosEnVentana: pesosVentana.length,
+        porcentajeEstimado:
+          kcalVentana > 0 ? (kcalEstimadasVentana / kcalVentana) * 100 : null,
       });
     }
     return serie;

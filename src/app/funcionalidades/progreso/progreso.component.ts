@@ -19,6 +19,7 @@ import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
 import { Estadisticas, PuntoSerie } from '../../nucleo/servicios/estadisticas';
 import { fechaLocal } from '../../nucleo/utilidades/fecha';
 import { BaseChartDirective } from 'ng2-charts';
+import { lecturaEstimacion } from '../../nucleo/utilidades/estimacion';
 import type { ChartConfiguration } from 'chart.js';
 
 const DIAS_SERIE = 28;
@@ -58,6 +59,13 @@ export class ProgresoComponent implements OnInit, ViewWillEnter {
   protected readonly mensaje = signal<string | null>(null);
 
   protected readonly resumen = computed(() => this.serie().at(-1) ?? null);
+  protected readonly lectura = computed(() => {
+    const r = this.resumen();
+    if (!r || r.porcentajeEstimado === null) {
+      return null;
+    }
+    return lecturaEstimacion(r.porcentajeEstimado);
+  });
   protected readonly pesoValido = computed(
     () => Number(this.pesoHoyTexto()) > 0,
   );
