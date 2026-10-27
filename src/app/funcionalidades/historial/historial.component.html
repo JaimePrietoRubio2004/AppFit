@@ -38,6 +38,9 @@
                 <p class="cifras">
                   {{ descripcionCantidad(registro) }} ·
                   {{ registro.kcal | number: "1.0-0" }} kcal
+                  @if (registro.esEstimado) {
+                    · <span class="estimado">estimado</span>
+                  }
                 </p>
               </ion-label>
               <ion-button

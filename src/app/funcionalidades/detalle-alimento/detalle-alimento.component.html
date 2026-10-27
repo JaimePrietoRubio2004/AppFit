@@ -10,6 +10,9 @@
       Por 100 g : {{ a.kcal100g }} kcal * {{ a.proteina100g }} g proteina *
       {{ a.grasa100g }} g grasas * {{ a.carbohidrato100g }} g hidratos
     </p>
+    @if (a.esEstimado) {
+      <p class="estimado">Valores estimados: no proceden de una etiqueta.</p>
+    }
 
     <ion-button fill="outline" (click)="alternarFavorito()">
       {{ esFavorito() ? "Quitar de favoritos" : "Añadir a favoritos" }}

@@ -38,6 +38,9 @@
             {{ gramosDe(linea) | number: "1.0-1" }}
             {{ linea.alimento.tipoMedida === "liquido" ? "ml" : "g" }} ·
             {{ kcalDe(linea) | number: "1.0-0" }} kcal
+            @if (linea.alimento.esEstimado) {
+              · <span class="estimado">estimado</span>
+            }
           </p>
           @if (linea.aviso) {
             <p>{{ linea.aviso }}</p>
