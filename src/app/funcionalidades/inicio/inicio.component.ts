@@ -17,6 +17,7 @@ import { REGISTRO_CONSUMO_REPOSITORY } from '../../nucleo/repositorios/registro-
 import { fechaLocal } from '../../nucleo/utilidades/fecha';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
+import { InsertarComida } from '../../nucleo/servicios/insertar-comida';
 
 @Component({
   selector: 'app-inicio',
@@ -40,6 +41,7 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   );
   private readonly objetivoPerfil = inject(ObjetivoPerfil);
   private readonly router = inject(Router);
+  private readonly insertarComida = inject(InsertarComida);
 
   constructor() {
     this.router.events
@@ -96,5 +98,10 @@ export class InicioComponent implements OnInit, ViewWillEnter {
     this.totalCarbohidrato.set(
       registros.reduce((suma, r) => suma + r.carboHidratoG, 0),
     );
+  }
+
+  protected nuevaPlantilla(): void {
+    this.insertarComida.proponerPlantillaNueva();
+    this.router.navigate(['/insertar-comida']);
   }
 }

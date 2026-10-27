@@ -23,6 +23,7 @@ export interface PropuestaComida {
   tipoComida: TipoComida;
   plantillaId: number | null;
   lineas: LineaComida[];
+  modo?: 'registrar' | 'plantilla';
 }
 
 @Service()
@@ -111,6 +112,34 @@ export class InsertarComida {
       plantillaId: plantilla.id,
       lineas,
     });
+  }
+
+  proponerPlantillaNueva(): void {
+    this.propuesta.set({
+      titulo: 'Nueva plantilla',
+      tipoComida: 'comida',
+      plantillaId: null,
+      lineas: [],
+      modo: 'plantilla',
+    });
+  }
+
+  async guardarComoPlantilla(
+    perfilId: number,
+    nombre: string,
+    propuesta: PropuestaComida,
+  ): Promise<void> {
+    await this.plantillaComidaRepository.crear({
+      perfilId,
+      nombre,
+      tipoComidaSugerido: propuesta.tipoComida,
+      lineas: propuesta.lineas.map((linea) => ({
+        alimentoId: linea.alimento.id,
+        cantidad: linea.cantidad,
+        unidad: linea.unidad,
+      })),
+    });
+    this.propuesta.set(null);
   }
 
   async confirmar(perfilId: number, propuesta: PropuestaComida): Promise<void> {

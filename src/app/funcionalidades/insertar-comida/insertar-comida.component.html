@@ -21,9 +21,14 @@
   </ion-item>
 
   @if (lineas().length === 0) {
-    <p>No quedan alimentos en esta comida.</p>
+    <p>
+      {{
+        modoPlantilla()
+          ? "Aún no has añadido alimentos a la plantilla."
+          : "No quedan alimentos en esta comida."
+      }}
+    </p>
   }
-
   <ion-list>
     @for (linea of lineas(); track $index; let i = $index) {
       <ion-item>
@@ -90,12 +95,21 @@
     <strong>Total: {{ totalKcal() | number: "1.0-0" }} kcal</strong>
   </p>
 
-  <ion-button
-    expand="block"
-    [disabled]="!puedeConfirmar()"
-    (click)="confirmar()"
-    >Añadir todo</ion-button
-  >
+  @if (modoPlantilla()) {
+    <ion-button
+      expand="block"
+      [disabled]="!puedeConfirmar()"
+      (click)="pedirNombrePlantilla()"
+      >Guardar plantilla</ion-button
+    >
+  } @else {
+    <ion-button
+      expand="block"
+      [disabled]="!puedeConfirmar()"
+      (click)="confirmar()"
+      >Añadir todo</ion-button
+    >
+  }
 
   @if (mensaje()) {
     <p>{{ mensaje() }}</p>

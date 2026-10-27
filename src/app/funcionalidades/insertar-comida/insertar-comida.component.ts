@@ -14,6 +14,8 @@ import {
   IonSelectOption,
   IonButton,
   IonSearchbar,
+  AlertController,
+  ToastController,
 } from '@ionic/angular';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { TipoComida } from '../../nucleo/modelos/registro-consumo.model';
@@ -53,6 +55,8 @@ export class InsertarComidaComponent implements OnInit {
   private readonly perfilRepository = inject(PERFIL_REPOSITORY);
   private readonly alimentoRepository = inject(ALIMENTO_REPOSITORY);
   private readonly router = inject(Router);
+  private readonly alertController = inject(AlertController);
+  private readonly toastController = inject(ToastController);
 
   private plantillaId: number | null = null;
 
@@ -63,6 +67,7 @@ export class InsertarComidaComponent implements OnInit {
   protected readonly buscando = signal(false);
   protected readonly textoBusqueda = signal('');
   protected readonly resultados = signal<Alimento[]>([]);
+  protected readonly modoPlantilla = signal(false);
 
   protected readonly totalKcal = computed(() =>
     this.lineas().reduce((suma, linea) => suma + this.kcalDe(linea), 0),
@@ -83,6 +88,7 @@ export class InsertarComidaComponent implements OnInit {
     this.tipoComida.set(propuesta.tipoComida);
     this.plantillaId = propuesta.plantillaId;
     this.lineas.set(propuesta.lineas);
+    this.modoPlantilla.set(propuesta.modo === 'plantilla');
   }
 
   protected gramosDe(linea: LineaComida): number {
@@ -150,6 +156,61 @@ export class InsertarComidaComponent implements OnInit {
       },
     ]);
     this.cerrarBusqueda();
+  }
+
+  protected async pedirNombrePlantilla(): Promise<void> {
+    if (!this.puedeConfirmar()) {
+      return;
+    }
+    const alerta = await this.alertController.create({
+      header: 'Guardar plantilla',
+      inputs: [
+        {
+          name: 'nombre',
+          type: 'text',
+          placeholder: 'Nombre (p. ej. Mi bocadillo)',
+        },
+      ],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Guardar',
+          handler: (datos: { nombre?: string }) => {
+            const nombre = (datos.nombre ?? '').trim();
+            if (nombre === '') {
+              return false;
+            }
+            void this.guardarPlantilla(nombre);
+            return true;
+          },
+        },
+      ],
+    });
+    await alerta.present();
+  }
+
+  private async guardarPlantilla(nombre: string): Promise<void> {
+    this.mensaje.set(null);
+    try {
+      const perfil = await this.perfilRepository.obtenerUltimoUsado();
+      if (!perfil) {
+        return;
+      }
+      await this.insertarComida.guardarComoPlantilla(perfil.id, nombre, {
+        titulo: this.titulo(),
+        tipoComida: this.tipoComida(),
+        plantillaId: null,
+        lineas: this.lineas(),
+      });
+      const aviso = await this.toastController.create({
+        message: `Plantilla «${nombre}» guardada.`,
+        duration: 2000,
+      });
+      await aviso.present();
+      this.router.navigate(['/inicio']);
+    } catch (error) {
+      this.mensaje.set(`Error al guardar la plantilla: ${error}`);
+    }
   }
 
   async confirmar(): Promise<void> {
