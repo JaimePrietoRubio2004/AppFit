@@ -12,6 +12,29 @@
   <ion-button expand="block" (click)="irASeleccionPerfil()"
     >Cambiar de perfil</ion-button
   >
+  <h2>Copia de seguridad</h2>
+  <p>
+    Guarda todos tus datos (perfiles, registros, plantillas y catálogo) en un
+    archivo. Incluye datos de salud sin cifrar: guárdalo en un sitio de
+    confianza.
+  </p>
+  <ion-button expand="block" fill="outline" (click)="exportarCopia()"
+    >Exportar copia</ion-button
+  >
+  <ion-button expand="block" fill="outline" (click)="selector.click()"
+    >Importar copia</ion-button
+  >
+  <input
+    #selector
+    type="file"
+    accept=".json,application/json"
+    hidden
+    (change)="alElegirArchivo($event)"
+  />
+
+  @if (mensaje()) {
+    <p>{{ mensaje() }}</p>
+  }
 
   <ion-button
     expand="block"

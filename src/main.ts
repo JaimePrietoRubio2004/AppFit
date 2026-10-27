@@ -24,6 +24,8 @@ import { PERFIL_ALIMENTO_REPOSITORY } from './app/nucleo/repositorios/perfil-ali
 import { PerfilAlimentoSqlite } from './app/nucleo/repositorios/perfil-alimento-sqlite.repository';
 import { PLANTILLA_COMIDA_REPOSITORY } from './app/nucleo/repositorios/plantilla-comida.repository';
 import { PlantillaComidaSqlite } from './app/nucleo/repositorios/plantilla-comida-sqlite.repository';
+import { COPIA_SEGURIDAD_REPOSITORY } from './app/nucleo/repositorios/copia-seguridad.repository';
+import { CopiaSeguridadSqlite } from './app/nucleo/repositorios/copia-seguridad-sqlite.repository';
 
 defineCustomElements(window);
 
@@ -43,5 +45,6 @@ bootstrapApplication(AppComponent, {
     { provide: REGISTRO_PESO_REPOSITORY, useClass: RegistroPesoSqlite },
     { provide: PERFIL_ALIMENTO_REPOSITORY, useClass: PerfilAlimentoSqlite },
     { provide: PLANTILLA_COMIDA_REPOSITORY, useClass: PlantillaComidaSqlite },
+    { provide: COPIA_SEGURIDAD_REPOSITORY, useClass: CopiaSeguridadSqlite },
   ],
 });

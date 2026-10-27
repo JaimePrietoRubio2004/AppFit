@@ -58,6 +58,19 @@
           >Quitar</ion-button
         >
       </ion-item>
+      @if (tieneUnidad(linea)) {
+        <ion-segment
+          [value]="modoDe(linea)"
+          (ionChange)="cambiarUnidad(i, $event.detail.value)"
+        >
+          <ion-segment-button value="base">
+            <ion-label>{{ etiquetaBase(linea) }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="unidad">
+            <ion-label>{{ linea.alimento.nombreUnidad }}</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      }
     }
   </ion-list>
 

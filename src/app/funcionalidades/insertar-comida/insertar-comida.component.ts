@@ -16,6 +16,8 @@ import {
   IonSearchbar,
   AlertController,
   ToastController,
+  IonSegment,
+  IonSegmentButton,
 } from '@ionic/angular';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { TipoComida } from '../../nucleo/modelos/registro-consumo.model';
@@ -48,6 +50,8 @@ const G = 'g';
     IonSelectOption,
     IonButton,
     IonSearchbar,
+    IonSegment,
+    IonSegmentButton,
   ],
 })
 export class InsertarComidaComponent implements OnInit {
@@ -91,8 +95,52 @@ export class InsertarComidaComponent implements OnInit {
     this.modoPlantilla.set(propuesta.modo === 'plantilla');
   }
 
+  protected etiquetaBase(linea: LineaComida): string {
+    return linea.alimento.tipoMedida === LIQUIDO ? ML : G;
+  }
+
+  protected tieneUnidad(linea: LineaComida): boolean {
+    return !!linea.alimento.nombreUnidad && !!linea.alimento.gramosPorUnidad;
+  }
+
+  protected modoDe(linea: LineaComida): 'base' | 'unidad' {
+    return linea.unidad === GRAMOS ? 'base' : 'unidad';
+  }
+
   protected gramosDe(linea: LineaComida): number {
     return linea.cantidad * linea.gramosPorCantidad;
+  }
+
+  protected cambiarUnidad(indice: number, valor: unknown): void {
+    const modo = valor === 'unidad' ? 'unidad' : 'base';
+    this.lineas.update((lineas) =>
+      lineas.map((linea, i) => {
+        if (i !== indice || modo === this.modoDe(linea)) {
+          return linea;
+        }
+        const alimento = linea.alimento;
+        if (
+          modo === 'unidad' &&
+          alimento.nombreUnidad &&
+          alimento.gramosPorUnidad
+        ) {
+          return {
+            ...linea,
+            unidad: alimento.nombreUnidad,
+            gramosPorCantidad: alimento.gramosPorUnidad,
+            cantidad: 1,
+            aviso: null,
+          };
+        }
+        return {
+          ...linea,
+          unidad: GRAMOS,
+          gramosPorCantidad: 1,
+          cantidad: 100,
+          aviso: null,
+        };
+      }),
+    );
   }
 
   protected kcalDe(linea: LineaComida): number {
