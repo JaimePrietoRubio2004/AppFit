@@ -1,5 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import {
   IonHeader,
@@ -15,6 +15,8 @@ import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { REGISTRO_CONSUMO_REPOSITORY } from '../../nucleo/repositorios/registro-consumo.repository';
 import { fechaLocal } from '../../nucleo/utilidades/fecha';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-inicio',
@@ -37,6 +39,20 @@ export class InicioComponent implements OnInit, ViewWillEnter {
     REGISTRO_CONSUMO_REPOSITORY,
   );
   private readonly objetivoPerfil = inject(ObjetivoPerfil);
+  private readonly router = inject(Router);
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter(
+          (evento) =>
+            evento instanceof NavigationEnd &&
+            evento.urlAfterRedirects === '/inicio',
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => void this.cargar());
+  }
 
   protected readonly objetivo = signal<ObjetivoCalculado | null>(null);
   protected readonly textoPerfil = signal('cargando...');
