@@ -15,6 +15,7 @@ const FACTOR_ACTIVIDAD: Record<NivelActividad, number> = {
 
 const KCAL_POR_KG_GRASA = 7700;
 const DEFICIT_MAXIMO = 0.25;
+const SUPERAVIT_MAXIMO = 0.15;
 const SUELO_KCAL_HOMBRE = 1500;
 const SUELO_KCAL_MUJER = 1200;
 
@@ -49,7 +50,11 @@ export interface ObjetivoCalculado {
   carbohidratoG: number;
   semanasEstimadas: number | null;
   limiteAplicado:
-    'ninguno' | 'deficit_maximo' | 'suelo_absoluto' | 'metabolismo_basal';
+    | 'ninguno'
+    | 'deficit_maximo'
+    | 'suelo_absoluto'
+    | 'metabolismo_basal'
+    | 'superavit_maximo';
 }
 
 export type ResultadoCalculadoObjetivo =
@@ -153,9 +158,12 @@ export class CalculoObjetivo {
     const ajusteDiario = (datos.ritmoSemanalKg * KCAL_POR_KG_GRASA) / 7;
 
     if (datos.objetivo === 'ganar_masa') {
+      const superavitMaximo = gastoTotal * SUPERAVIT_MAXIMO;
+      const superavit = Math.min(Math.max(ajusteDiario, 0), superavitMaximo);
       return {
-        kcalObjetivo: gastoTotal + ajusteDiario,
-        limiteAplicado: 'ninguno',
+        kcalObjetivo: gastoTotal + superavit,
+        limiteAplicado:
+          ajusteDiario > superavitMaximo ? 'superavit_maximo' : 'ninguno',
       };
     }
 

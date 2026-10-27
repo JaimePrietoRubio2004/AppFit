@@ -1,4 +1,5 @@
 import { Service } from '@angular/core';
+import { CapacitorHttp } from '@capacitor/core';
 import type { NuevoAlimento } from '../repositorios/alimento.repository';
 
 const URL_BASE = 'https://world.openfoodfacts.org/api/v2/product';
@@ -21,6 +22,8 @@ interface ProductoOpenFoodFacts {
   brands?: string;
   nutriments?: NutrientesOpenFoodFacts;
   serving_size?: string;
+  quantity?: string;
+  categories_tags?: string[];
 }
 
 interface RespuestaOpenFoodFacts {
@@ -28,18 +31,26 @@ interface RespuestaOpenFoodFacts {
   product?: ProductoOpenFoodFacts;
 }
 
+function esLiquido(producto: ProductoOpenFoodFacts): boolean {
+  if (producto.categories_tags?.includes('en:beverages')) {
+    return true;
+  }
+  return /\d\s*(ml|cl|dl|l)\b/i.test(producto.quantity ?? '');
+}
+
 @Service()
 export class OpenFoodFacts {
   async buscarPorCodigoDeBarras(
     codigoBarras: string,
   ): Promise<NuevoAlimento | null> {
-    const respuesta = await fetch(`${URL_BASE}/${codigoBarras}.json`, {
+    const respuesta = await CapacitorHttp.get({
+      url: `${URL_BASE}/${codigoBarras}.json`,
       headers: { 'User-Agent': AGENTES_USUARIO },
     });
-    if (!respuesta.ok) {
+    if (respuesta.status !== 200) {
       return null;
     }
-    const datos = (await respuesta.json()) as RespuestaOpenFoodFacts;
+    const datos = respuesta.data as RespuestaOpenFoodFacts;
     if (datos.status !== 1 || !datos.product) {
       return null;
     }
@@ -86,7 +97,7 @@ export class OpenFoodFacts {
       nombreUnidad: null,
       gramosPorUnidad: null,
       unidadOrigen: 'openfoodfacts',
-      tipoMedida: 'solido',
+      tipoMedida: esLiquido(producto) ? 'liquido' : 'solido',
       kcalAlcohol100: null,
       esEstimado: false,
       origen: 'openfoodfacts',

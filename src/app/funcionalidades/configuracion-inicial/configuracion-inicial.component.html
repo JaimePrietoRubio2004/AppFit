@@ -150,9 +150,8 @@
         @if (r.objetivo.limiteAplicado !== "ninguno") {
           <ion-text color="medium">
             <p>
-              Se ha ajustado tu objetivo por seguridad ({{
-                r.objetivo.limiteAplicado
-              }}).
+              Se ha ajustado tu objetivo por seguridad:
+              {{ textoLimite(r.objetivo.limiteAplicado) }}.
             </p>
           </ion-text>
         }

@@ -142,6 +142,7 @@ export class EditarAlimentoComponent implements OnInit {
     const id = this.id();
     if (id === undefined) {
       this.nombreTexto.set(this.nombre() ?? '');
+      this.esEstimado.set(this.codigo() === undefined);
       return;
     }
     const alimento = await this.alimentoRepository.obtenerPorId(Number(id));
@@ -306,6 +307,7 @@ export class EditarAlimentoComponent implements OnInit {
         return;
       }
       this.codigoLeido.set(lectura.codigo);
+      this.esEstimado.set(false);
       this.mensaje.set(
         resolucion.motivo === 'sin_conexion'
           ? 'Sin conexión: no se puede consultar el producto. Rellénalo a mano y se guardará con este código.'
