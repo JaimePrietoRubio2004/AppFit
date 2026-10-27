@@ -31,6 +31,11 @@ import {
 } from '../../nucleo/servicios/leer-tabla-nutricional';
 import { EscanerCodigoBarras } from '../../nucleo/servicios/escaner-codigo-barras';
 import { ResolverAlimento } from '../../nucleo/servicios/resolver-alimento';
+import { DecimalPipe } from '@angular/common';
+import {
+  gradosDesdeKcalAlcohol,
+  kcalAlcoholDesdeGrados,
+} from '../../nucleo/utilidades/alcohol';
 
 const SOLIDO = 'solido';
 
@@ -51,6 +56,7 @@ const SOLIDO = 'solido';
     IonSegmentButton,
     IonToggle,
     IonText,
+    DecimalPipe,
   ],
 })
 export class EditarAlimentoComponent implements OnInit {
@@ -83,6 +89,7 @@ export class EditarAlimentoComponent implements OnInit {
   protected readonly textoLeido = signal<string | null>(null);
   protected readonly porOcr = signal(false);
   protected readonly codigoLeido = signal<string | null>(null);
+  protected readonly alcoholTexto = signal('');
 
   protected readonly codigoActual = computed(
     () => this.codigoLeido() ?? this.codigo() ?? null,
@@ -109,13 +116,30 @@ export class EditarAlimentoComponent implements OnInit {
     this.aNumero(this.carbohidratoTexto()),
   );
 
+  protected readonly alcoholCorrecto = computed(() => {
+    const texto = this.alcoholTexto().trim();
+    if (texto === '') {
+      return true;
+    }
+    const grados = this.aNumero(texto);
+    return grados !== null && grados <= 100;
+  });
+
+  protected readonly kcalAlcohol100 = computed(() => {
+    const grados = this.aNumero(this.alcoholTexto());
+    return grados !== null && grados > 0 && grados <= 100
+      ? kcalAlcoholDesdeGrados(grados)
+      : null;
+  });
+
   protected readonly valido = computed(
     () =>
       this.nombreTexto().trim() !== '' &&
       this.kcal() !== null &&
       this.proteina() !== null &&
       this.grasa() !== null &&
-      this.carbohidrato() !== null,
+      this.carbohidrato() !== null &&
+      this.alcoholCorrecto(),
   );
 
   protected readonly avisoKcal = computed(() => {
@@ -131,11 +155,15 @@ export class EditarAlimentoComponent implements OnInit {
     ) {
       return null;
     }
-    const esperado = 4 * proteina + 4 * carbohidrato + 9 * grasa;
+    const esperado =
+      4 * proteina +
+      4 * carbohidrato +
+      9 * grasa +
+      (this.kcalAlcohol100() ?? 0);
     if (Math.abs(kcal - esperado) <= Math.max(0.2 * esperado, 5)) {
       return null;
     }
-    return `Las kcal (${Math.round(kcal)}) no coinciden con lo que suman los macros (${Math.round(esperado)}). Revísalo; si incluye alcohol o fibra puede ser normal.`;
+    return `Las kcal (${Math.round(kcal)}) no coinciden con lo que suman los macros (${Math.round(esperado)}). Revísalo. Si es una bebida alcohólica, indica su graduación; con mucha fibra también puede ser normal.`;
   });
 
   async ngOnInit(): Promise<void> {
@@ -165,6 +193,11 @@ export class EditarAlimentoComponent implements OnInit {
     this.fibraTexto.set(String(alimento.fibra100g));
     this.salTexto.set(String(alimento.sal100g));
     this.esEstimado.set(alimento.esEstimado);
+    this.alcoholTexto.set(
+      alimento.kcalAlcohol100
+        ? String(gradosDesdeKcalAlcohol(alimento.kcalAlcohol100))
+        : '',
+    );
   }
 
   private aNumero(texto: string): number | null {
@@ -260,6 +293,7 @@ export class EditarAlimentoComponent implements OnInit {
         fibra100g: this.aNumero(this.fibraTexto()) ?? 0,
         sal100g: this.aNumero(this.salTexto()) ?? 0,
         esEstimado: this.esEstimado(),
+        kcalAlcohol100: this.kcalAlcohol100(),
       };
       const base = this.existente();
       if (base) {
@@ -273,7 +307,6 @@ export class EditarAlimentoComponent implements OnInit {
         nombreUnidad: null,
         gramosPorUnidad: null,
         unidadOrigen: null,
-        kcalAlcohol100: null,
         origen: this.porOcr() ? 'ocr' : 'manual',
         fechaCache: null,
       });

@@ -20,4 +20,5 @@ export interface RegistroConsumo {
   plantillaId: number | null;
   creadoEn: string;
   esEstimado: boolean;
+  kcalAlcohol: number;
 }

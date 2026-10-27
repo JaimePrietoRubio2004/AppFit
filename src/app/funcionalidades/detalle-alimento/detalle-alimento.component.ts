@@ -100,6 +100,9 @@ export class DetalleAlimentoComponent implements OnInit, ViewWillEnter {
   protected readonly carbohidratosRacion = computed(() =>
     this.paraRacion((a) => a.carbohidrato100g),
   );
+  protected readonly kcalAlcoholRacion = computed(() =>
+    this.paraRacion((a) => a.kcalAlcohol100 ?? 0),
+  );
   protected readonly tieneUnidad = computed(() => {
     const a = this.alimento();
     return a !== null && a.nombreUnidad !== null && a.gramosPorUnidad !== null;
@@ -278,6 +281,7 @@ export class DetalleAlimentoComponent implements OnInit, ViewWillEnter {
       plantillaId: null,
       creadoEn: new Date().toISOString(),
       esEstimado: alimentoActual.esEstimado,
+      kcalAlcohol: this.kcalAlcoholRacion(),
     };
     await this.registroConsumoRepository.guardar(nuevo);
     await this.perfilAlimentoRepository.registrarUso(

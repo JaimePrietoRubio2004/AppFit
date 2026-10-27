@@ -163,6 +163,7 @@ export class InsertarComida {
         plantillaId: propuesta.plantillaId,
         creadoEn: new Date(marcaBase + indice).toISOString(),
         esEstimado: linea.alimento.esEstimado,
+        kcalAlcohol: (linea.alimento.kcalAlcohol100 ?? 0) * factor,
       });
       await this.perfilAlimentoRepository.registrarUso(
         perfilId,

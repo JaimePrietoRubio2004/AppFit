@@ -1,5 +1,6 @@
 import { Service } from '@angular/core';
 import { CapacitorHttp } from '@capacitor/core';
+import { kcalAlcoholDesdeGrados } from '../utilidades/alcohol';
 import type { NuevoAlimento } from '../repositorios/alimento.repository';
 
 const URL_BASE = 'https://world.openfoodfacts.org/api/v2/product';
@@ -14,6 +15,7 @@ interface NutrientesOpenFoodFacts {
   'saturated-fat_100g'?: number;
   fiber_100g?: number;
   salt_100g?: number;
+  alcohol_100g?: number;
 }
 
 interface ProductoOpenFoodFacts {
@@ -98,7 +100,10 @@ export class OpenFoodFacts {
       gramosPorUnidad: null,
       unidadOrigen: 'openfoodfacts',
       tipoMedida: esLiquido(producto) ? 'liquido' : 'solido',
-      kcalAlcohol100: null,
+      kcalAlcohol100:
+        nutrientes?.alcohol_100g && nutrientes.alcohol_100g <= 100
+          ? kcalAlcoholDesdeGrados(nutrientes.alcohol_100g)
+          : null,
       esEstimado: false,
       origen: 'openfoodfacts',
       fechaCache: new Date().toISOString(),

@@ -65,7 +65,8 @@ CREATE TABLE IF NOT EXISTS registro_consumo (
   carbohidrato_g REAL NOT NULL,
   plantilla_id INTEGER,
   creado_en TEXT NOT NULL,
-  es_estimado INTEGER NOT NULL DEFAULT 0
+  es_estimado INTEGER NOT NULL DEFAULT 0,
+  kcal_alcohol REAL NOT NULL DEFAULT 0
 );
 
 
@@ -147,19 +148,23 @@ export class BaseDatos {
       [],
       false,
     );
-    const yaExiste = (columnas.values ?? []).some(
-      (columna) => columna.name === 'es_estimado',
-    );
-    if (yaExiste) {
-      return;
-    }
-    await conexion.execute(
-      `ALTER TABLE registro_consumo ADD COLUMN es_estimado INTEGER NOT NULL DEFAULT 0;
+    const nombres = (columnas.values ?? []).map((columna) => columna.name);
+    if (!nombres.includes('es_estimado')) {
+      await conexion.execute(
+        `ALTER TABLE registro_consumo ADD COLUMN es_estimado INTEGER NOT NULL DEFAULT 0;
      UPDATE registro_consumo SET es_estimado =
        (SELECT es_estimado FROM alimento WHERE alimento.id = registro_consumo.alimento_id);`,
-      true,
-      false,
-    );
+        true,
+        false,
+      );
+    }
+    if (!nombres.includes('kcal_alcohol')) {
+      await conexion.execute(
+        'ALTER TABLE registro_consumo ADD COLUMN kcal_alcohol REAL NOT NULL DEFAULT 0;',
+        true,
+        false,
+      );
+    }
   }
 
   private asegurarWebStore(): Promise<void> {

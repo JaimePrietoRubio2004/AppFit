@@ -43,7 +43,11 @@
       {{ totalCarbohidrato() | number: "1.0-1" }} g hidratos
     </p>
   }
-
+  @if (totalKcalAlcohol() > 0) {
+    <p class="discreto macro">
+      Incluye {{ totalKcalAlcohol() | number: "1.0-0" }} kcal de alcohol.
+    </p>
+  }
   <ion-button expand="block" routerLink="/anadir-alimento">
     Añadir consumición</ion-button
   >

@@ -20,6 +20,11 @@
             {{ dia.grasaG | number: "1.0-0" }} g · hidratos
             {{ dia.carbohidratoG | number: "1.0-0" }} g
           </p>
+          @if (dia.kcalAlcohol > 0) {
+            <p class="cifras discreto">
+              Incluye {{ dia.kcalAlcohol | number: "1.0-0" }} kcal de alcohol
+            </p>
+          }
         </ion-label>
       </ion-item>
 

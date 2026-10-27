@@ -62,6 +62,7 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   protected readonly totalProteina = signal(0);
   protected readonly totalGrasa = signal(0);
   protected readonly totalCarbohidrato = signal(0);
+  protected readonly totalKcalAlcohol = signal(0);
 
   async ionViewWillEnter(): Promise<void> {
     await this.cargar();
@@ -91,6 +92,9 @@ export class InicioComponent implements OnInit, ViewWillEnter {
     );
 
     this.totalKcal.set(registros.reduce((suma, r) => suma + r.kcal, 0));
+    this.totalKcalAlcohol.set(
+      registros.reduce((suma, r) => suma + r.kcalAlcohol, 0),
+    );
     this.totalProteina.set(
       registros.reduce((suma, r) => suma + r.proteinaG, 0),
     );

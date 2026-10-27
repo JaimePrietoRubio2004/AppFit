@@ -22,6 +22,7 @@ interface FilaRegistroConsumo {
   plantilla_id: number | null;
   creado_en: string;
   es_estimado: number;
+  kcal_alcohol: number;
 }
 
 function filaARegistroConsumo(fila: FilaRegistroConsumo): RegistroConsumo {
@@ -41,6 +42,7 @@ function filaARegistroConsumo(fila: FilaRegistroConsumo): RegistroConsumo {
     plantillaId: fila.plantilla_id,
     creadoEn: fila.creado_en,
     esEstimado: fila.es_estimado === 1,
+    kcalAlcohol: fila.kcal_alcohol,
   };
 }
 
@@ -52,8 +54,8 @@ export class RegistroConsumoSqlite implements RegistroConsumoRepository {
     const resultado = await db.run(
       `INSERT INTO registro_consumo
         (perfil_id, fecha, tipo_comida, alimento_id, gramos, cantidad_introducida, unidad_introducida,
-         kcal, proteina_g, grasa_g, carbohidrato_g, plantilla_id, creado_en, es_estimado)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         kcal, proteina_g, grasa_g, carbohidrato_g, plantilla_id, creado_en, es_estimado, kcal_alcohol)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         registro.perfilId,
         registro.fecha,
@@ -69,6 +71,7 @@ export class RegistroConsumoSqlite implements RegistroConsumoRepository {
         registro.plantillaId,
         registro.creadoEn,
         registro.esEstimado ? 1 : 0,
+        registro.kcalAlcohol,
       ],
       true,
       'no',

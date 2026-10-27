@@ -39,6 +39,7 @@ interface DiaHistorial {
   grasaG: number;
   carbohidratoG: number;
   registros: RegistroConsumo[];
+  kcalAlcohol: number;
 }
 
 @Component({
@@ -226,11 +227,13 @@ export class HistorialComponent implements OnInit, ViewWillEnter {
         grasaG: 0,
         carbohidratoG: 0,
         registros: [],
+        kcalAlcohol: 0,
       };
       dia.kcal += registro.kcal;
       dia.proteinaG += registro.proteinaG;
       dia.grasaG += registro.grasaG;
       dia.carbohidratoG += registro.carboHidratoG;
+      dia.kcalAlcohol += registro.kcalAlcohol;
       dia.registros.push(registro);
       porDia.set(registro.fecha, dia);
     }
