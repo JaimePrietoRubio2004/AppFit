@@ -1,5 +1,7 @@
 import { Service, signal } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 export type PreferenciaApariencia = 'automatica' | 'claro' | 'oscuro';
 
@@ -35,5 +37,9 @@ export class Apariencia {
       (this.preferencia() === 'automatica' && this.consulta.matches);
     document.documentElement.classList.toggle('ion-palette-dark', oscuro);
     this.oscuro.set(oscuro);
+    if (Capacitor.isNativePlatform()) {
+      // Style.Dark = iconos claros, para fondos oscuros
+      void StatusBar.setStyle({ style: oscuro ? Style.Dark : Style.Light });
+    }
   }
 }

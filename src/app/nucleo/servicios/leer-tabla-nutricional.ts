@@ -1,6 +1,7 @@
 import { Service } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { Camera, MediaTypeSelection } from '@capacitor/camera';
+import { Filesystem } from '@capacitor/filesystem';
 import { Script, TextRecognition } from '@capacitor-mlkit/text-recognition';
 import {
   LineaOcr,
@@ -22,8 +23,9 @@ export class LeerTablaNutricional {
     if (!Capacitor.isNativePlatform()) {
       return { estado: 'no_disponible' };
     }
+    let uri: string | null = null;
     try {
-      const uri = await this.obtenerImagen(fuente);
+      uri = await this.obtenerImagen(fuente);
       if (uri === null) {
         return { estado: 'cancelado' };
       }
@@ -43,6 +45,19 @@ export class LeerTablaNutricional {
         return { estado: 'cancelado' };
       }
       return { estado: 'error', mensaje };
+    } finally {
+      // La foto de la cámara es temporal; la de la galería es del usuario
+      if (fuente === 'camara' && uri !== null) {
+        await this.borrarFotoTemporal(uri);
+      }
+    }
+  }
+
+  private async borrarFotoTemporal(uri: string): Promise<void> {
+    try {
+      await Filesystem.deleteFile({ path: this.conEsquema(uri) });
+    } catch {
+      // Si no se puede borrar, la caché del sistema la limpiará
     }
   }
 

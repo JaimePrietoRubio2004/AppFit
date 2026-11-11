@@ -3,7 +3,8 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.jaime.appfit',
   appName: 'AppFit',
-  webDir: 'www'
+  webDir: 'www',
+  loggingBehavior: 'none',
 };
 
 export default config;
