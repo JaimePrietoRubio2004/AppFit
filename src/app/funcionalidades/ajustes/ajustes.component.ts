@@ -50,6 +50,10 @@ export class AjustesComponent implements OnInit, ViewWillEnter {
     this.router.navigate(['/seleccion-perfil']);
   }
 
+  editarPerfil(): void {
+    this.router.navigate(['/editar-perfil']);
+  }
+
   async exportarCopia(): Promise<void> {
     this.mensaje.set(null);
     const resultado = await this.archivoCopia.exportar();

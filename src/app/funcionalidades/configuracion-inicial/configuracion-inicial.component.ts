@@ -30,14 +30,9 @@ import {
   ObjetivoCorporal,
 } from '../../nucleo/modelos/perfil.model';
 import { fechaLocal } from '../../nucleo/utilidades/fecha';
+import { textoLimite } from '../../nucleo/utilidades/limite-objetivo';
 
 const COLOR_AVATAR_POR_DEFECTO = '#0F766E';
-const TEXTO_LIMITE: Record<string, string> = {
-  deficit_maximo: 'el déficit no puede superar el 25 % de tu gasto',
-  suelo_absoluto: 'las calorías no bajan del mínimo diario',
-  metabolismo_basal: 'las calorías no bajan de tu metabolismo basal',
-  superavit_maximo: 'el superávit no puede superar el 15 % de tu gasto',
-};
 @Component({
   selector: 'app-configuracion-inicial',
   templateUrl: './configuracion-inicial.component.html',
@@ -106,6 +101,8 @@ export class ConfiguracionInicialComponent implements ViewWillEnter {
     return Number.isNaN(n) ? 0 : n;
   });
 
+  protected readonly textoLimite = textoLimite;
+
   private readonly pesoObjetivoKgNumero = computed(() => {
     const n = Number(this.pesoObjetivoKgTexto());
     return this.pesoObjetivoKgTexto() !== '' && !Number.isNaN(n) ? n : null;
@@ -151,10 +148,6 @@ export class ConfiguracionInicialComponent implements ViewWillEnter {
 
   protected aTexto(valor: unknown): string {
     return valor === null || valor === undefined ? '' : String(valor);
-  }
-
-  protected textoLimite(limite: string): string {
-    return TEXTO_LIMITE[limite] ?? limite;
   }
 
   async confirmar(): Promise<void> {

@@ -52,6 +52,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'editar-perfil',
+    loadComponent: () =>
+      import('./funcionalidades/editar-perfil/editar-perfil.component').then(
+        (m) => m.EditarPerfilComponent,
+      ),
+  },
+  {
     path: '',
     loadComponent: () =>
       import('./funcionalidades/pestanas/pestanas.component').then(
