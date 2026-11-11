@@ -24,3 +24,10 @@ export function agruparPorComida(registro: RegistroConsumo[]): GrupoComida[] {
 export function etiquetaComida(tipo: TipoComida): string {
   return tipo.charAt(0).toUpperCase() + tipo.slice(1);
 }
+
+export function descripcionCantidad(registro: RegistroConsumo): string {
+  if (registro.unidadIntroducida === 'gramos') {
+    return `${registro.gramos} g`;
+  }
+  return `${registro.cantidadIntroducida} ${registro.unidadIntroducida} (${registro.gramos} g)`;
+}

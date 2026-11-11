@@ -9,6 +9,10 @@ import {
   IonButton,
   IonProgressBar,
   ViewWillEnter,
+  IonList,
+  IonItem,
+  IonLabel,
+  AlertController,
 } from '@ionic/angular';
 import { ObjetivoPerfil } from '../../nucleo/servicios/objetivo-perfil';
 import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
@@ -18,6 +22,14 @@ import { fechaLocal } from '../../nucleo/utilidades/fecha';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { InsertarComida } from '../../nucleo/servicios/insertar-comida';
+import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
+import { RegistroConsumo } from '../../nucleo/modelos/registro-consumo.model';
+import {
+  GrupoComida,
+  agruparPorComida,
+  descripcionCantidad,
+  etiquetaComida,
+} from '../../nucleo/utilidades/comidas';
 
 @Component({
   selector: 'app-inicio',
@@ -32,6 +44,9 @@ import { InsertarComida } from '../../nucleo/servicios/insertar-comida';
     RouterLink,
     DecimalPipe,
     IonProgressBar,
+    IonList,
+    IonItem,
+    IonLabel,
   ],
 })
 export class InicioComponent implements OnInit, ViewWillEnter {
@@ -42,6 +57,8 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   private readonly objetivoPerfil = inject(ObjetivoPerfil);
   private readonly router = inject(Router);
   private readonly insertarComida = inject(InsertarComida);
+  private readonly alimentoRepository = inject(ALIMENTO_REPOSITORY);
+  private readonly alertController = inject(AlertController);
 
   constructor() {
     this.router.events
@@ -63,6 +80,13 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   protected readonly totalGrasa = signal(0);
   protected readonly totalCarbohidrato = signal(0);
   protected readonly totalKcalAlcohol = signal(0);
+  protected readonly registrosHoy = signal<RegistroConsumo[]>([]);
+  protected readonly nombresAlimento = signal<Record<number, string>>({});
+  protected readonly grupos = computed(() =>
+    agruparPorComida(this.registrosHoy()),
+  );
+  protected readonly etiquetaComida = etiquetaComida;
+  protected readonly descripcionCantidad = descripcionCantidad;
 
   async ionViewWillEnter(): Promise<void> {
     await this.cargar();
@@ -90,6 +114,8 @@ export class InicioComponent implements OnInit, ViewWillEnter {
       actual.id,
       hoy,
     );
+    await this.cargarNombres(registros);
+    this.registrosHoy.set(registros);
 
     this.totalKcal.set(registros.reduce((suma, r) => suma + r.kcal, 0));
     this.totalKcalAlcohol.set(
@@ -107,5 +133,42 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   protected nuevaPlantilla(): void {
     this.insertarComida.proponerPlantillaNueva();
     this.router.navigate(['/insertar-comida']);
+  }
+
+  protected kcalDe(grupo: GrupoComida): number {
+    return grupo.registros.reduce((suma, r) => suma + r.kcal, 0);
+  }
+
+  protected async pedirEliminar(registro: RegistroConsumo): Promise<void> {
+    const nombre = this.nombresAlimento()[registro.alimentoId];
+    const alerta = await this.alertController.create({
+      header: 'Eliminar registro',
+      message: `Se borrará "${nombre}" (${descripcionCantidad(registro)}) de hoy.`,
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: () => this.eliminar(registro.id),
+        },
+      ],
+    });
+    await alerta.present();
+  }
+
+  private async eliminar(id: number): Promise<void> {
+    await this.registroConsumoRepository.eliminar(id);
+    await this.cargar();
+  }
+
+  private async cargarNombres(registros: RegistroConsumo[]): Promise<void> {
+    const nombres = { ...this.nombresAlimento() };
+    for (const id of new Set(registros.map((r) => r.alimentoId))) {
+      if (nombres[id] === undefined) {
+        const alimento = await this.alimentoRepository.obtenerPorId(id);
+        nombres[id] = alimento?.nombre ?? 'Alimento desconocido';
+      }
+    }
+    this.nombresAlimento.set(nombres);
   }
 }

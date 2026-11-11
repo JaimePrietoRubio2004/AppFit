@@ -57,4 +57,43 @@
   <ion-button expand="block" fill="outline" (click)="nuevaPlantilla()">
     Añadir plantilla</ion-button
   >
+  <div class="comidas">
+    <h2>Comidas de hoy</h2>
+
+    @for (grupo of grupos(); track grupo.tipo) {
+      <ion-list>
+        <ion-item lines="none">
+          <ion-label>
+            <h3 class="cifras">
+              {{ etiquetaComida(grupo.tipo) }} ·
+              {{ kcalDe(grupo) | number: "1.0-0" }} kcal
+            </h3>
+          </ion-label>
+        </ion-item>
+        @for (registro of grupo.registros; track registro.id) {
+          <ion-item>
+            <ion-label>
+              <h3>{{ nombresAlimento()[registro.alimentoId] }}</h3>
+              <p class="cifras">
+                {{ descripcionCantidad(registro) }} ·
+                {{ registro.kcal | number: "1.0-0" }} kcal
+                @if (registro.esEstimado) {
+                  · <span class="estimado">estimado</span>
+                }
+              </p>
+            </ion-label>
+            <ion-button
+              slot="end"
+              fill="clear"
+              color="danger"
+              (click)="pedirEliminar(registro)"
+              >Eliminar</ion-button
+            >
+          </ion-item>
+        }
+      </ion-list>
+    } @empty {
+      <p class="discreto">Aún no has registrado nada hoy.</p>
+    }
+  </div>
 </ion-content>

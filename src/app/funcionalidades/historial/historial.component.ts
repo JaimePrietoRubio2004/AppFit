@@ -28,7 +28,11 @@ import {
 import { Router } from '@angular/router';
 import { PLANTILLA_COMIDA_REPOSITORY } from '../../nucleo/repositorios/plantilla-comida.repository';
 import { InsertarComida } from '../../nucleo/servicios/insertar-comida';
-import { GrupoComida, agruparPorComida } from '../../nucleo/utilidades/comidas';
+import {
+  GrupoComida,
+  agruparPorComida,
+  descripcionCantidad,
+} from '../../nucleo/utilidades/comidas';
 
 const DIAS_POR_TANDA = 30;
 
@@ -93,10 +97,7 @@ export class HistorialComponent implements OnInit, ViewWillEnter {
   }
 
   protected descripcionCantidad(registro: RegistroConsumo): string {
-    if (registro.unidadIntroducida === 'gramos') {
-      return `${registro.gramos} g`;
-    }
-    return `${registro.cantidadIntroducida} ${registro.unidadIntroducida} (${registro.gramos} g)`;
+    return descripcionCantidad(registro);
   }
 
   protected alternarDia(fecha: string): void {
