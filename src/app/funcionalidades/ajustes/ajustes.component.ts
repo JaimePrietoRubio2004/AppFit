@@ -1,5 +1,4 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
@@ -10,16 +9,35 @@ import {
   ViewWillEnter,
 } from '@ionic/angular';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
-import { Perfil } from '../../nucleo/modelos/perfil.model';
 import { ToastController } from '@ionic/angular';
 import { COPIA_SEGURIDAD_REPOSITORY } from '../../nucleo/repositorios/copia-seguridad.repository';
 import { CopiaSeguridad } from '../../nucleo/modelos/copia-seguridad.model';
 import { ArchivoCopiaSeguridad } from '../../nucleo/servicios/archivo-copia-seguridad';
+import { NavigationEnd, Router } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
+import { ObjetivoPerfil } from '../../nucleo/servicios/objetivo-perfil';
+import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
+import { ObjetivoCorporal, Perfil } from '../../nucleo/modelos/perfil.model';
+
+const ETIQUETA_OBJETIVO: Record<ObjetivoCorporal, string> = {
+  ganar_masa: 'Ganar masa',
+  perder_grasa: 'Perder grasa',
+  recomposicion: 'Recomposición',
+};
 @Component({
   selector: 'app-ajustes',
   templateUrl: './ajustes.component.html',
   styleUrls: ['./ajustes.component.scss'],
-  imports: [IonContent, IonTitle, IonHeader, IonButton, IonToolbar],
+  imports: [
+    IonContent,
+    IonTitle,
+    IonHeader,
+    IonButton,
+    IonToolbar,
+    DecimalPipe,
+  ],
 })
 export class AjustesComponent implements OnInit, ViewWillEnter {
   private readonly perfilRepository = inject(PERFIL_REPOSITORY);
@@ -28,10 +46,29 @@ export class AjustesComponent implements OnInit, ViewWillEnter {
   private readonly archivoCopia = inject(ArchivoCopiaSeguridad);
   private readonly copiaRepository = inject(COPIA_SEGURIDAD_REPOSITORY);
   private readonly toastController = inject(ToastController);
+  private readonly objetivoPerfil = inject(ObjetivoPerfil);
 
+  protected readonly objetivoActual = signal<ObjetivoCalculado | null>(null);
   protected readonly mensaje = signal<string | null>(null);
   protected readonly perfilActual = signal<Perfil | null>(null);
   protected readonly puedeEliminar = signal(true);
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter(
+          (evento) =>
+            evento instanceof NavigationEnd &&
+            evento.urlAfterRedirects === '/ajustes',
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => void this.cargar());
+  }
+
+  protected etiquetaObjetivo(objetivo: ObjetivoCorporal): string {
+    return ETIQUETA_OBJETIVO[objetivo];
+  }
 
   async ionViewWillEnter(): Promise<void> {
     await this.cargar();
@@ -42,7 +79,11 @@ export class AjustesComponent implements OnInit, ViewWillEnter {
   }
 
   async cargar(): Promise<void> {
-    this.perfilActual.set(await this.perfilRepository.obtenerUltimoUsado());
+    const perfil = await this.perfilRepository.obtenerUltimoUsado();
+    this.perfilActual.set(perfil);
+    this.objetivoActual.set(
+      perfil ? await this.objetivoPerfil.obtener(perfil) : null,
+    );
     this.puedeEliminar.set((await this.perfilRepository.listar()).length > 1);
   }
 
