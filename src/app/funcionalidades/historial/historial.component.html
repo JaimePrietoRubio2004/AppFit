@@ -5,80 +5,98 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (dias().length === 0) {
-    <p>No hay registros en los últimos {{ diasMostrados }} días.</p>
-  }
-
-  <ion-list>
-    @for (dia of dias(); track dia.fecha) {
-      <ion-item button (click)="alternarDia(dia.fecha)">
-        <ion-label>
-          <h2>{{ etiquetaDia(dia.fecha) }}</h2>
-          <p class="cifras">
-            {{ dia.kcal | number: "1.0-0" }} kcal · proteína
-            {{ dia.proteinaG | number: "1.0-0" }} g · grasa
-            {{ dia.grasaG | number: "1.0-0" }} g · hidratos
-            {{ dia.carbohidratoG | number: "1.0-0" }} g
-          </p>
-          @if (dia.kcalAlcohol > 0) {
-            <p class="cifras discreto">
-              Incluye {{ dia.kcalAlcohol | number: "1.0-0" }} kcal de alcohol
-            </p>
-          }
-        </ion-label>
-      </ion-item>
-
-      @if (diaAbierto() === dia.fecha) {
-        @for (grupo of gruposDe(dia); track grupo.tipo) {
-          <ion-item class="grupo" lines="none">
-            <ion-label>
-              <h3>{{ etiquetaComida(grupo.tipo) }}</h3>
-            </ion-label>
-          </ion-item>
-
-          @for (registro of grupo.registros; track registro.id) {
-            <ion-item class="registro">
-              <ion-label>
-                <h3>{{ nombresAlimento()[registro.alimentoId] }}</h3>
-                <p class="cifras">
-                  {{ descripcionCantidad(registro) }} ·
-                  {{ registro.kcal | number: "1.0-0" }} kcal
-                  @if (registro.esEstimado) {
-                    · <span class="estimado">estimado</span>
-                  }
-                </p>
-              </ion-label>
-              <ion-button
-                slot="end"
-                fill="clear"
-                color="danger"
-                (click)="pedirEliminar(registro)"
-                >Eliminar</ion-button
-              >
-            </ion-item>
-          }
-
-          <ion-item class="registro" lines="none">
-            <ion-button size="small" fill="outline" (click)="repetir(grupo)"
-              >Repetir hoy</ion-button
-            >
-            <ion-button
-              size="small"
-              fill="outline"
-              (click)="pedirNombrePlantilla(grupo)"
-              >Guardar como plantilla</ion-button
-            >
-          </ion-item>
-        }
-      }
+  <div class="pagina">
+    @if (dias().length === 0) {
+      <p class="etiqueta">
+        No hay registros en los últimos {{ diasMostrados }} días.
+      </p>
     }
-  </ion-list>
 
-  <ion-button expand="block" fill="outline" (click)="verMas()"
-    >Ver 30 días anteriores</ion-button
-  >
+    @for (dia of dias(); track dia.fecha) {
+      <section class="tarjeta dia">
+        <button
+          type="button"
+          class="dia-cabecera"
+          [attr.aria-expanded]="diaAbierto() === dia.fecha"
+          (click)="alternarDia(dia.fecha)"
+        >
+          <span class="dia-resumen">
+            <span class="cuerpo-fuerte">{{ etiquetaDia(dia.fecha) }}</span>
+            <span class="etiqueta">
+              {{ dia.kcal | number: "1.0-0" }} kcal · proteína
+              {{ dia.proteinaG | number: "1.0-0" }} g · grasa
+              {{ dia.grasaG | number: "1.0-0" }} g · hidratos
+              {{ dia.carbohidratoG | number: "1.0-0" }} g
+            </span>
+            @if (dia.kcalAlcohol > 0) {
+              <span class="auxiliar">
+                Incluye {{ dia.kcalAlcohol | number: "1.0-0" }} kcal de alcohol
+              </span>
+            }
+          </span>
+          <ion-icon
+            class="chevron"
+            [name]="
+              diaAbierto() === dia.fecha
+                ? 'chevron-up-outline'
+                : 'chevron-down-outline'
+            "
+          ></ion-icon>
+        </button>
 
-  @if (mensaje()) {
-    <p>{{ mensaje() }}</p>
-  }
+        @if (diaAbierto() === dia.fecha) {
+          <div class="dia-detalle">
+            @for (grupo of gruposDe(dia); track grupo.tipo) {
+              <h3 class="cuerpo-fuerte">{{ etiquetaComida(grupo.tipo) }}</h3>
+
+              @for (registro of grupo.registros; track registro.id) {
+                <div class="fila">
+                  <div class="crece">
+                    <p class="linea-nombre">
+                      {{ nombresAlimento()[registro.alimentoId] }}
+                    </p>
+                    <p class="etiqueta">
+                      {{ descripcionCantidad(registro) }} ·
+                      {{ registro.kcal | number: "1.0-0" }} kcal
+                      @if (registro.esEstimado) {
+                        · <span class="estimado">estimado</span>
+                      }
+                    </p>
+                  </div>
+                  <ion-button
+                    class="icono"
+                    fill="clear"
+                    color="danger"
+                    [attr.aria-label]="
+                      'Eliminar ' + nombresAlimento()[registro.alimentoId]
+                    "
+                    (click)="pedirEliminar(registro)"
+                  >
+                    <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              }
+
+              <div class="fila botones">
+                <ion-button fill="outline" (click)="repetir(grupo)"
+                  >Repetir hoy</ion-button
+                >
+                <ion-button fill="outline" (click)="pedirNombrePlantilla(grupo)"
+                  >Guardar plantilla</ion-button
+                >
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    <ion-button expand="block" fill="outline" (click)="verMas()"
+      >Ver 30 días anteriores</ion-button
+    >
+
+    @if (mensaje()) {
+      <p class="etiqueta">{{ mensaje() }}</p>
+    }
+  </div>
 </ion-content>

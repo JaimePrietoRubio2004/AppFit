@@ -1,0 +1,12 @@
+ion-tab-bar {
+  --background: var(--app-fondo);
+  --border: 1px solid var(--app-borde);
+  --color: var(--app-texto-secundario);
+  --color-selected: var(--app-primario);
+  height: 64px;
+}
+
+ion-tab-button {
+  font-size: 13px;
+  min-width: var(--app-tactil);
+}

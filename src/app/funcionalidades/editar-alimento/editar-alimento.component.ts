@@ -14,15 +14,15 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonItem,
-  IonLabel,
+  IonButtons,
+  IonBackButton,
+  IonIcon,
   IonInput,
   IonButton,
-  IonSegment,
-  IonSegmentButton,
   IonToggle,
-  IonText,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { barcodeOutline, imageOutline, scanOutline } from 'ionicons/icons';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
 import { Alimento, TipoMedida } from '../../nucleo/modelos/alimento.model';
 import {
@@ -48,14 +48,12 @@ const SOLIDO = 'solido';
     IonToolbar,
     IonTitle,
     IonContent,
-    IonItem,
-    IonLabel,
+    IonButtons,
+    IonBackButton,
+    IonIcon,
     IonInput,
     IonButton,
-    IonSegment,
-    IonSegmentButton,
     IonToggle,
-    IonText,
     DecimalPipe,
   ],
 })
@@ -95,16 +93,16 @@ export class EditarAlimentoComponent implements OnInit {
     () => this.codigoLeido() ?? this.codigo() ?? null,
   );
   protected readonly camposObligatorios = [
-    { etiqueta: 'Calorías (kcal)', texto: this.kcalTexto },
-    { etiqueta: 'Proteína (g)', texto: this.proteinaTexto },
-    { etiqueta: 'Grasa (g)', texto: this.grasaTexto },
-    { etiqueta: 'Hidratos (g)', texto: this.carbohidratoTexto },
+    { etiqueta: 'Calorías', unidad: 'kcal', texto: this.kcalTexto },
+    { etiqueta: 'Proteína', unidad: 'g', texto: this.proteinaTexto },
+    { etiqueta: 'Grasa', unidad: 'g', texto: this.grasaTexto },
+    { etiqueta: 'Hidratos', unidad: 'g', texto: this.carbohidratoTexto },
   ];
   protected readonly camposOpcionales = [
-    { etiqueta: 'Azúcares (g)', texto: this.azucaresTexto },
-    { etiqueta: 'Saturadas (g)', texto: this.saturadasTexto },
-    { etiqueta: 'Fibra (g)', texto: this.fibraTexto },
-    { etiqueta: 'Sal (g)', texto: this.salTexto },
+    { etiqueta: 'Azúcares', unidad: 'g', texto: this.azucaresTexto },
+    { etiqueta: 'Saturadas', unidad: 'g', texto: this.saturadasTexto },
+    { etiqueta: 'Fibra', unidad: 'g', texto: this.fibraTexto },
+    { etiqueta: 'Sal', unidad: 'g', texto: this.salTexto },
   ];
 
   protected readonly kcal = computed(() => this.aNumero(this.kcalTexto()));
@@ -165,6 +163,10 @@ export class EditarAlimentoComponent implements OnInit {
     }
     return `Las kcal (${Math.round(kcal)}) no coinciden con lo que suman los macros (${Math.round(esperado)}). Revísalo. Si es una bebida alcohólica, indica su graduación; con mucha fibra también puede ser normal.`;
   });
+
+  constructor() {
+    addIcons({ barcodeOutline, imageOutline, scanOutline });
+  }
 
   async ngOnInit(): Promise<void> {
     const id = this.id();

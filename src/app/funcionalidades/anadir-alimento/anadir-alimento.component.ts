@@ -7,14 +7,19 @@ import {
   IonContent,
   IonButton,
   IonSearchbar,
-  IonList,
-  IonItem,
-  IonLabel,
+  IonButtons,
+  IonBackButton,
+  IonIcon,
   ViewWillEnter,
   AlertController,
-  IonSegment,
-  IonSegmentButton,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import {
+  barcodeOutline,
+  chevronForwardOutline,
+  star,
+  trashOutline,
+} from 'ionicons/icons';
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
 import { Alimento } from '../../nucleo/modelos/alimento.model';
@@ -46,6 +51,14 @@ const PESTANAS: Pestana[] = [
   'ayer',
   'plantillas',
 ];
+const OPCIONES: { valor: Pestana; nombre: string }[] = [
+  { valor: 'todos', nombre: 'Todos' },
+  { valor: 'favoritos', nombre: 'Favoritos' },
+  { valor: 'usados', nombre: 'Más usados' },
+  { valor: 'ayer', nombre: 'Ayer' },
+  { valor: 'plantillas', nombre: 'Plantillas' },
+];
+
 @Component({
   selector: 'app-anadir-alimento',
   templateUrl: './anadir-alimento.component.html',
@@ -58,12 +71,10 @@ const PESTANAS: Pestana[] = [
     IonButton,
     DecimalPipe,
     IonSearchbar,
-    IonList,
-    IonItem,
-    IonLabel,
+    IonButtons,
+    IonBackButton,
+    IonIcon,
     NgTemplateOutlet,
-    IonSegment,
-    IonSegmentButton,
   ],
 })
 export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
@@ -96,10 +107,14 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
   protected readonly comidasAyer = signal<GrupoComida[]>([]);
   protected readonly etiquetaComida = etiquetaComida;
   protected readonly pestana = signal<Pestana>('todos');
+  protected readonly opciones = OPCIONES;
   protected readonly visibles = signal(PAGINA);
   protected readonly todos = signal<Alimento[]>([]);
   protected readonly hayMasTodos = signal(false);
 
+  private readonly idsFavoritos = computed(
+    () => new Set(this.favoritos().map((alimento) => alimento.id)),
+  );
   protected readonly favoritosVisibles = computed(() =>
     this.favoritos().slice(0, this.visibles()),
   );
@@ -118,6 +133,14 @@ export class AnadirAlimentoComponent implements OnInit, ViewWillEnter {
         return false;
     }
   });
+
+  constructor() {
+    addIcons({ barcodeOutline, chevronForwardOutline, star, trashOutline });
+  }
+
+  protected esFavorito(alimento: Alimento): boolean {
+    return this.idsFavoritos().has(alimento.id);
+  }
 
   async ionViewWillEnter(): Promise<void> {
     await this.cargarListas();

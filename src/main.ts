@@ -26,11 +26,16 @@ import { PLANTILLA_COMIDA_REPOSITORY } from './app/nucleo/repositorios/plantilla
 import { PlantillaComidaSqlite } from './app/nucleo/repositorios/plantilla-comida-sqlite.repository';
 import { COPIA_SEGURIDAD_REPOSITORY } from './app/nucleo/repositorios/copia-seguridad.repository';
 import { CopiaSeguridadSqlite } from './app/nucleo/repositorios/copia-seguridad-sqlite.repository';
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
+import { LOCALE_ID } from '@angular/core';
 
+registerLocaleData(localeEs);
 defineCustomElements(window);
 
 bootstrapApplication(AppComponent, {
   providers: [
+    { provide: LOCALE_ID, useValue: 'es-ES' },
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(

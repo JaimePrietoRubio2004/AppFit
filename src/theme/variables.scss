@@ -1,20 +1,102 @@
+@mixin tema-oscuro {
+  --app-fondo: #101614;
+  --app-superficie: #1a2320;
+  --app-borde: #2a3733;
+  --app-texto: #e9f0ee;
+  --app-texto-secundario: #9aaaa6;
+  --app-primario: #2dd4bf;
+  --app-sobre-primario: #06201d;
+  --app-macro-proteina: #7c97ff;
+  --app-macro-grasa: #f2ab55;
+  --app-macro-carbohidrato: #a78bfa;
+  --app-estado-superado: #d9a441;
+  --app-destructivo: #ef8a83;
+
+  --ion-background-color: #101614;
+  --ion-background-color-rgb: 16, 22, 20;
+  --ion-text-color: #e9f0ee;
+  --ion-text-color-rgb: 233, 240, 238;
+  --ion-toolbar-background: #101614;
+  --ion-item-background: #101614;
+
+  --ion-color-primary: #2dd4bf;
+  --ion-color-primary-rgb: 45, 212, 191;
+  --ion-color-primary-contrast: #06201d;
+  --ion-color-primary-contrast-rgb: 6, 32, 29;
+  --ion-color-primary-shade: #29bfac;
+  --ion-color-primary-tint: #42d8c5;
+
+  --ion-color-danger: #ef8a83;
+  --ion-color-danger-rgb: 239, 138, 131;
+  --ion-color-danger-contrast: #1a0b0a;
+  --ion-color-danger-contrast-rgb: 26, 11, 10;
+  --ion-color-danger-shade: #d77c76;
+  --ion-color-danger-tint: #f1968f;
+
+  --ion-color-medium: #9aaaa6;
+  --ion-color-medium-rgb: 154, 170, 166;
+  --ion-color-medium-contrast: #000000;
+  --ion-color-medium-contrast-rgb: 0, 0, 0;
+  --ion-color-medium-shade: #879692;
+  --ion-color-medium-tint: #a4b3af;
+}
+
 :root {
+  /* Tokens de la guía de estilo (modo claro) */
+  --app-fondo: #ffffff;
+  --app-superficie: #f4f7f6;
+  --app-borde: #e1e8e6;
+  --app-texto: #14201e;
+  --app-texto-secundario: #5a6b68;
+  --app-primario: #0f766e;
+  --app-sobre-primario: #ffffff;
   --app-macro-proteina: #4c6fff;
   --app-macro-grasa: #e08c2c;
   --app-macro-carbohidrato: #8b5cf6;
   --app-estado-superado: #b4791f;
+  --app-destructivo: #c2413a;
+
+  --app-radio-tarjeta: 12px;
+  --app-radio-control: 8px;
+  --app-tactil: 48px;
+  --app-espacio-4: 4px;
+  --app-espacio-8: 8px;
+  --app-espacio-12: 12px;
+  --app-espacio-16: 16px;
+  --app-espacio-24: 24px;
+  --app-espacio-32: 32px;
+
+  /* Ionic */
+  --ion-font-family: "Inter Variable", "Inter", system-ui, sans-serif;
+  --ion-background-color: #ffffff;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: #14201e;
+  --ion-text-color-rgb: 20, 32, 30;
+  --ion-toolbar-background: #ffffff;
+  --ion-item-background: #ffffff;
+
+  --ion-color-primary: #0f766e;
+  --ion-color-primary-rgb: 15, 118, 110;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #0d6861;
+  --ion-color-primary-tint: #27847d;
+
   --ion-color-danger: #c2413a;
   --ion-color-danger-rgb: 194, 65, 58;
   --ion-color-danger-contrast: #ffffff;
   --ion-color-danger-contrast-rgb: 255, 255, 255;
   --ion-color-danger-shade: #ad3a34;
   --ion-color-danger-tint: #c8544e;
+
+  --ion-color-medium: #5a6b68;
+  --ion-color-medium-rgb: 90, 107, 104;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #4f5e5c;
+  --ion-color-medium-tint: #6b7b78;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --app-macro-proteina: #7c97ff;
-    --app-macro-grasa: #f2ab55;
-    --app-macro-carbohidrato: #a78bfa;
-  }
+:root.ion-palette-dark {
+  @include tema-oscuro;
 }

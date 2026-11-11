@@ -25,16 +25,8 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+@import "@ionic/angular/css/palettes/dark.class.css";
+@import "@fontsource-variable/inter";
 
 .estimado {
   color: var(--ion-color-medium);
@@ -47,3 +39,533 @@
 .cifras {
   font-variant-numeric: tabular-nums;
 }
+
+body {
+  font: 400 16px/24px var(--ion-font-family);
+  font-variant-numeric: tabular-nums;
+}
+
+.cifra-principal {
+  font: 600 40px/44px var(--ion-font-family);
+}
+.titulo-pantalla {
+  font: 600 24px/28px var(--ion-font-family);
+}
+.titulo-seccion {
+  font: 600 18px/24px var(--ion-font-family);
+}
+.cuerpo-fuerte {
+  font: 600 16px/24px var(--ion-font-family);
+}
+.etiqueta {
+  font: 400 14px/20px var(--ion-font-family);
+  color: var(--app-texto-secundario);
+}
+.auxiliar {
+  font: 400 13px/18px var(--ion-font-family);
+  color: var(--app-texto-secundario);
+}
+
+ion-button {
+  --border-radius: var(--app-radio-control);
+  --box-shadow: none;
+  margin: 0;
+  min-height: var(--app-tactil);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+ion-button[fill="outline"] {
+  --border-width: 1.5px;
+}
+
+ion-toolbar {
+  --background: var(--app-fondo);
+  --border-width: 0;
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+ion-header,
+ion-header.header-md {
+  box-shadow: none;
+}
+ion-header::after {
+  display: none;
+}
+ion-title {
+  padding-inline: 0;
+  font: 600 24px/28px var(--ion-font-family);
+}
+ion-content {
+  --background: var(--app-fondo);
+}
+
+.tarjeta {
+  background: var(--app-superficie);
+  border: 1px solid var(--app-borde);
+  border-radius: var(--app-radio-tarjeta);
+  padding: var(--app-espacio-16);
+}
+
+.fila-botones {
+  display: flex;
+  gap: var(--app-espacio-8);
+
+  ion-button {
+    flex: 1;
+    margin: 0;
+  }
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font: 600 16px/1 var(--ion-font-family);
+  color: white;
+
+  &.grande {
+    flex: none;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* Colores de controles nativos (calendario, scroll) según el tema elegido */
+:root {
+  color-scheme: light;
+}
+:root.ion-palette-dark {
+  color-scheme: dark;
+}
+
+/* Composición de pantallas */
+.pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-espacio-16);
+}
+
+.pagina-sin-cabecera {
+  padding: calc(var(--ion-safe-area-top, 0px) + var(--app-espacio-16))
+    var(--app-espacio-16) var(--app-espacio-24);
+}
+
+.sep {
+  height: 1px;
+  background: var(--app-borde);
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  gap: var(--app-espacio-12);
+}
+
+.fila-campos {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--app-espacio-12);
+}
+
+.crece {
+  flex: 1;
+  min-width: 0;
+}
+
+p,
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+/* Formularios */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-espacio-4);
+  flex: 1;
+  min-width: 0;
+}
+
+.campo-etiqueta {
+  font: 400 14px/20px var(--ion-font-family);
+  color: var(--app-texto-secundario);
+}
+
+.campo-caja {
+  display: flex;
+  align-items: center;
+  gap: var(--app-espacio-8);
+  min-height: var(--app-tactil);
+  padding: 0 var(--app-espacio-16);
+  background: var(--app-superficie);
+  border: 1px solid var(--app-borde);
+  border-radius: var(--app-radio-control);
+
+  &:focus-within {
+    border-color: var(--app-primario);
+  }
+
+  ion-input,
+  ion-select,
+  ion-textarea {
+    flex: 1;
+    min-height: 46px;
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --color: var(--app-texto);
+    --placeholder-color: var(--app-texto-secundario);
+    --placeholder-opacity: 1;
+    font-size: 16px;
+  }
+
+  ion-select::part(container) {
+    flex: 1;
+  }
+
+  .unidad {
+    font: 400 14px/20px var(--ion-font-family);
+    color: var(--app-texto-secundario);
+  }
+}
+
+.campo-ayuda {
+  font: 400 13px/18px var(--ion-font-family);
+  color: var(--app-texto-secundario);
+}
+
+.segmento {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--app-borde);
+  border-radius: var(--app-radio-control);
+
+  button {
+    flex: 1;
+    min-height: 46px;
+    padding: 0 var(--app-espacio-12);
+    border: 0;
+    background: transparent;
+    font: 400 16px/24px var(--ion-font-family);
+    color: var(--app-texto);
+    cursor: pointer;
+
+    &.sel {
+      background: var(--app-primario);
+      color: var(--app-sobre-primario);
+      font-weight: 600;
+    }
+  }
+}
+
+.chips {
+  display: flex;
+  gap: var(--app-espacio-8);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.chip {
+  flex: none;
+  min-height: 40px;
+  padding: 0 var(--app-espacio-16);
+  border: 1px solid var(--app-borde);
+  border-radius: var(--app-radio-control);
+  background: var(--app-superficie);
+  font: 600 16px/24px var(--ion-font-family);
+  color: var(--app-texto);
+  cursor: pointer;
+
+  &.sel {
+    background: var(--app-primario);
+    border-color: var(--app-primario);
+    color: var(--app-sobre-primario);
+  }
+}
+
+.insignia {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  height: 24px;
+  padding: 0 var(--app-espacio-8);
+  border: 1px solid var(--app-primario);
+  border-radius: 12px;
+  font: 400 13px/18px var(--ion-font-family);
+  color: var(--app-primario);
+}
+
+/* Opciones tipo tarjeta con selector circular */
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: var(--app-espacio-12);
+  width: 100%;
+  padding: var(--app-espacio-12) var(--app-espacio-16);
+  border: 1px solid var(--app-borde);
+  border-radius: var(--app-radio-tarjeta);
+  background: var(--app-superficie);
+  color: var(--app-texto);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+
+  &.sel {
+    padding: 11px 15px;
+    border: 2px solid var(--app-primario);
+  }
+
+  .radio {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--app-texto-secundario);
+    border-radius: 50%;
+  }
+
+  &.sel .radio {
+    border-color: var(--app-primario);
+    background: radial-gradient(var(--app-primario) 45%, transparent 50%);
+  }
+
+  .opcion-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.pasos {
+  display: flex;
+  gap: var(--app-espacio-8);
+
+  i {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--app-borde);
+
+    &.on {
+      background: var(--app-primario);
+    }
+  }
+}
+
+/* Hoja inferior (ion-modal con breakpoints) */
+ion-modal.hoja {
+  --background: var(--app-fondo);
+  --border-radius: 16px 16px 0 0;
+  --border-width: 1px 0 0;
+  --border-color: var(--app-borde);
+
+  &::part(handle) {
+    background: var(--app-borde);
+    width: 40px;
+    height: 4px;
+  }
+}
+
+.punto {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.secundario {
+  color: var(--app-texto-secundario);
+}
+
+.botones ion-button {
+  flex: 1;
+  margin: 0;
+  --padding-start: var(--app-espacio-8);
+  --padding-end: var(--app-espacio-8);
+}
+
+.punto {
+  &.proteina {
+    background: var(--app-macro-proteina);
+  }
+  &.grasa {
+    background: var(--app-macro-grasa);
+  }
+  &.carbohidrato {
+    background: var(--app-macro-carbohidrato);
+  }
+}
+
+ion-back-button {
+  --color: var(--app-texto);
+}
+
+/* Botón de icono con área táctil de 48 px */
+ion-button.icono {
+  width: var(--app-tactil);
+  height: var(--app-tactil);
+  margin: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+/* Listas dentro de una tarjeta */
+.lista {
+  padding: 0;
+  overflow: hidden;
+}
+
+.fila-lista {
+  display: flex;
+  align-items: center;
+  gap: var(--app-espacio-12);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--app-espacio-8) var(--app-espacio-16);
+  border: 0;
+  background: transparent;
+  color: var(--app-texto);
+  text-align: left;
+  font: inherit;
+
+  & + & {
+    border-top: 1px solid var(--app-borde);
+  }
+}
+
+button.fila-lista {
+  cursor: pointer;
+}
+
+div.fila-lista {
+  padding-right: var(--app-espacio-4);
+}
+
+.fila-texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fila-titulo {
+  font: 400 16px/24px var(--ion-font-family);
+}
+
+.vacio {
+  padding: var(--app-espacio-16);
+}
+
+/* Tarjeta con contenido apilado */
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-espacio-12);
+}
+
+.cifra-media {
+  font: 600 24px/28px var(--ion-font-family);
+}
+
+/* Tres macros en columnas, cada uno con su punto de color y su etiqueta */
+.macros-tres {
+  display: flex;
+  gap: var(--app-espacio-12);
+}
+
+.macro-col {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--app-espacio-4);
+  min-width: 0;
+
+  .etiqueta {
+    display: flex;
+    align-items: center;
+    gap: var(--app-espacio-4);
+  }
+
+  .cuerpo-fuerte {
+    font-size: 14px;
+    line-height: 20px;
+    white-space: nowrap;
+  }
+}
+
+/* Buscador */
+ion-searchbar {
+  padding: 0;
+  height: var(--app-tactil);
+  --background: var(--app-superficie);
+  --border-radius: var(--app-radio-control);
+  --box-shadow: none;
+  --color: var(--app-texto);
+  --icon-color: var(--app-texto-secundario);
+  --placeholder-color: var(--app-texto-secundario);
+  --placeholder-opacity: 1;
+  --clear-button-color: var(--app-texto-secundario);
+  font-size: 16px;
+
+  &::part(container) {
+    border: 1px solid var(--app-borde);
+  }
+}
+
+.titulo-ancho {
+  padding: var(--app-espacio-8) 0;
+}
+
+/* Dentro de una tarjeta los campos usan el fondo de la pantalla */
+.tarjeta .campo-caja {
+  background: var(--app-fondo);
+}
+
+.total {
+  padding: 0 var(--app-espacio-4);
+}
+
+/* Barra fina de un macro (dentro de .macro-proteina | .macro-grasa | .macro-carbohidrato) */
+.barra-macro {
+  height: 4px;
+  margin-top: var(--app-espacio-8);
+  border-radius: 2px;
+  background: var(--app-borde);
+  overflow: hidden;
+
+  .relleno {
+    height: 100%;
+    border-radius: 2px;
+  }
+}
+
+.macro-proteina .relleno {
+  background: var(--app-macro-proteina);
+}
+.macro-grasa .relleno {
+  background: var(--app-macro-grasa);
+}
+.macro-carbohidrato .relleno {
+  background: var(--app-macro-carbohidrato);
+}
+
+.cifra-linea {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--app-espacio-8);
+
+  .secundario {
+    padding-bottom: var(--app-espacio-4);
+  }
+}
+

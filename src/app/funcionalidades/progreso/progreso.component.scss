@@ -1,42 +1,43 @@
-.cifra-principal {
-  font-size: 40px;
-  line-height: 44px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  margin: 0 0 8px;
-}
-
-.cifra-objetivo {
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--ion-color-medium);
-}
-
-.macro {
-  font-variant-numeric: tabular-nums;
-  margin: 4px 0;
-}
-
-.macro-proteina {
-  color: var(--app-macro-proteina);
-}
-.macro-grasa {
-  color: var(--app-macro-grasa);
-}
-.macro-carbohidrato {
-  color: var(--app-macro-carbohidrato);
+.guardar-peso {
+  flex: none;
+  --padding-start: var(--app-espacio-24);
+  --padding-end: var(--app-espacio-24);
 }
 
 .grafica {
   position: relative;
-  height: 240px;
-  margin-bottom: 24px;
+  height: 160px;
 }
 
-.lectura {
-  color: var(--ion-color-medium);
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-espacio-16);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: var(--app-espacio-8);
+    font: 400 13px/18px var(--ion-font-family);
+    color: var(--app-texto-secundario);
+  }
+
+  i {
+    display: block;
+    width: 16px;
+    height: 3px;
+    border-radius: 2px;
+  }
 }
 
-.cifras {
-  font-variant-numeric: tabular-nums;
+.linea-primario {
+  background: var(--app-primario);
+}
+
+.linea-objetivo {
+  background: var(--app-texto-secundario);
+}
+
+.linea-peso {
+  background: var(--app-macro-proteina);
 }

@@ -1,7 +1,48 @@
-.cifras {
-  font-variant-numeric: tabular-nums;
+.dia {
+  padding: 0;
 }
 
-.registro {
-  --padding-start: 32px;
+.dia-cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--app-espacio-12);
+  width: 100%;
+  min-height: var(--app-tactil);
+  padding: var(--app-espacio-12) var(--app-espacio-16);
+  border: 0;
+  background: transparent;
+  color: var(--app-texto);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dia-resumen {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--app-espacio-4);
+  min-width: 0;
+}
+
+.chevron {
+  flex: none;
+  font-size: 20px;
+  color: var(--app-texto-secundario);
+}
+
+.dia-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-espacio-8);
+  padding: var(--app-espacio-12) var(--app-espacio-16) var(--app-espacio-16);
+  border-top: 1px solid var(--app-borde);
+
+  p {
+    margin: 0;
+  }
+}
+
+.linea-nombre {
+  font: 400 16px/24px var(--ion-font-family);
 }

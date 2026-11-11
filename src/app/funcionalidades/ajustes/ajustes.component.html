@@ -5,77 +5,121 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (perfilActual(); as perfil) {
-    <p>Perfil activo: {{ perfil.nombre }}</p>
-    @if (objetivoActual(); as o) {
-      <p class="cifras">
-        <strong
-          >{{ etiquetaObjetivo(perfil.objetivo) }} ·
-          {{ o.kcalObjetivo | number: "1.0-0" }} kcal al día</strong
+  <div class="pagina">
+    @if (perfilActual(); as perfil) {
+      <section class="tarjeta perfil">
+        <div class="fila">
+          <div class="avatar grande" [style.background]="perfil.colorAvatar">
+            {{ perfil.nombre.charAt(0).toUpperCase() }}
+          </div>
+          <div class="crece">
+            <p class="cuerpo-fuerte">{{ perfil.nombre }}</p>
+            @if (objetivoActual(); as o) {
+              <p class="etiqueta">
+                {{ etiquetaObjetivo(perfil.objetivo) }} ·
+                {{ o.kcalObjetivo | number: "1.0-0" }} kcal al día
+              </p>
+            }
+          </div>
+        </div>
+
+        @if (objetivoActual(); as o) {
+          <p class="etiqueta">
+            {{ o.proteinaG | number: "1.0-0" }} g proteína ·
+            {{ o.grasaG | number: "1.0-0" }} g grasa ·
+            {{ o.carbohidratoG | number: "1.0-0" }} g hidratos
+          </p>
+        } @else {
+          <p class="etiqueta">
+            Registra tu peso en Progreso para calcular tu objetivo.
+          </p>
+        }
+
+        <button type="button" class="fila-enlace" (click)="editarPerfil()">
+          <span class="crece">Editar perfil y objetivo</span>
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+        <button
+          type="button"
+          class="fila-enlace"
+          (click)="irASeleccionPerfil()"
         >
-      </p>
-      <p class="cifras discreto">
-        {{ o.proteinaG | number: "1.0-0" }} g proteína ·
-        {{ o.grasaG | number: "1.0-0" }} g grasa ·
-        {{ o.carbohidratoG | number: "1.0-0" }} g hidratos
-      </p>
-    } @else {
-      <p class="discreto">
-        Registra tu peso en Progreso para calcular tu objetivo.
-      </p>
+          <span class="crece">Cambiar de perfil</span>
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+      </section>
     }
-  }
 
-  <ion-button expand="block" (click)="editarPerfil()"
-    >Editar perfil y objetivo</ion-button
-  >
+    <section class="bloque-seccion">
+      <h2 class="titulo-seccion">Apariencia</h2>
+      <div class="segmento" role="radiogroup" aria-label="Apariencia">
+        @for (opcion of opcionesApariencia; track opcion.valor) {
+          <button
+            type="button"
+            role="radio"
+            [class.sel]="apariencia.preferencia() === opcion.valor"
+            [attr.aria-checked]="apariencia.preferencia() === opcion.valor"
+            (click)="apariencia.elegir(opcion.valor)"
+          >
+            {{ opcion.nombre }}
+          </button>
+        }
+      </div>
+      <p class="auxiliar">
+        Automático sigue el modo claro u oscuro de tu móvil.
+      </p>
+    </section>
 
-  <ion-button expand="block" (click)="irASeleccionPerfil()"
-    >Cambiar de perfil</ion-button
-  >
-  <h2>Copia de seguridad</h2>
-  <p>
-    Guarda todos tus datos (perfiles, registros, plantillas y catálogo) en un
-    archivo. Incluye datos de salud sin cifrar: guárdalo en un sitio de
-    confianza.
-  </p>
-  <ion-button expand="block" fill="outline" (click)="exportarCopia()"
-    >Exportar copia</ion-button
-  >
-  <ion-button expand="block" fill="outline" (click)="selector.click()"
-    >Importar copia</ion-button
-  >
-  <input
-    #selector
-    type="file"
-    accept=".json,application/json"
-    hidden
-    (change)="alElegirArchivo($event)"
-  />
+    <section class="bloque-seccion">
+      <h2 class="titulo-seccion">Copia de seguridad</h2>
+      <p class="etiqueta">
+        Guarda todos tus datos (perfiles, registros, plantillas y catálogo) en
+        un archivo. Incluye datos de salud sin cifrar: guárdalo en un sitio de
+        confianza.
+      </p>
+      <div class="fila botones">
+        <ion-button fill="outline" (click)="exportarCopia()">
+          <ion-icon slot="start" name="download-outline"></ion-icon>
+          Exportar
+        </ion-button>
+        <ion-button fill="outline" (click)="selector.click()">
+          <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+          Importar
+        </ion-button>
+      </div>
+      <input
+        #selector
+        type="file"
+        accept=".json,application/json"
+        hidden
+        (change)="alElegirArchivo($event)"
+      />
+      @if (mensaje()) {
+        <p class="etiqueta">{{ mensaje() }}</p>
+      }
+    </section>
 
-  @if (mensaje()) {
-    <p>{{ mensaje() }}</p>
-  }
+    <section class="bloque-seccion">
+      <h2 class="titulo-seccion">Información</h2>
+      <p class="etiqueta">
+        AppFit no sustituye el criterio de un profesional sanitario. Tus
+        objetivos se calculan con fórmulas públicas (Mifflin-St Jeor) y no son
+        recomendaciones médicas personalizadas.
+      </p>
+      <p class="etiqueta">
+        Tus datos están solo en este dispositivo. A Open Food Facts solo se
+        envía el código de barras que escaneas.
+      </p>
+    </section>
 
-  <ion-button
-    expand="block"
-    color="danger"
-    [disabled]="!puedeEliminar()"
-    (click)="eliminarPerfil()"
-  >
-    Eliminar este perfil
-  </ion-button>
-
-  <div class="informacion">
-    <h2>Información</h2>
-    <p class="discreto">
-      AppFit no sustituye el criterio de un profesional sanitario. Tus objetivos
-      se calculan con fórmulas públicas (Mifflin-St Jeor) y no son
-      recomendaciones médicas personalizadas.
-    </p>
-    <p class="discreto">
-      Tus datos están solo en este dispositivo. A Open Food Facts solo se envía
-      el código de barras que escaneas.
-    </p>
+    <ion-button
+      expand="block"
+      fill="outline"
+      color="danger"
+      [disabled]="!puedeEliminar()"
+      (click)="eliminarPerfil()"
+    >
+      Eliminar este perfil
+    </ion-button>
   </div>
 </ion-content>

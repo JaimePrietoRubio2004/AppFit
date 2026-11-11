@@ -1,187 +1,201 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Añadir Alimento</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/inicio"
+        text=""
+        aria-label="Volver"
+      ></ion-back-button>
+    </ion-buttons>
+    <ion-title>Añadir consumición</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-button expand="block" (click)="escanear()">
-    Escanear código de barras</ion-button
-  >
-  <ion-button expand="block" fill="outline" (click)="crearAlimento()"
-    >Crear alimento</ion-button
-  >
-  <ng-template #fila let-alimento>
-    <ion-item button (click)="abrir(alimento)">
-      <ion-label>
-        <h3>{{ alimento.nombre }}</h3>
-        <p>
-          @if (alimento.marca) {
-            {{ alimento.marca }} ·
-          }
-          {{ alimento.kcal100g | number: "1.0-0" }} kcal /
-          {{ alimento.tipoMedida === "liquido" ? "100 ml" : "100 g" }}
-        </p>
-      </ion-label>
-    </ion-item>
-  </ng-template>
+  <div class="pagina">
+    <div class="fila botones">
+      <ion-button (click)="escanear()">
+        <ion-icon slot="start" name="barcode-outline"></ion-icon>
+        Escanear
+      </ion-button>
+      <ion-button fill="outline" (click)="crearAlimento()"
+        >Crear alimento</ion-button
+      >
+    </div>
 
-  <ion-searchbar
-    placeholder="Buscar alimento"
-    [debounce]="200"
-    (ionInput)="buscar($event.detail.value)"
-  ></ion-searchbar>
+    <ng-template #fila let-alimento>
+      <button type="button" class="fila-lista" (click)="abrir(alimento)">
+        <span class="fila-texto">
+          <span class="fila-titulo">{{ alimento.nombre }}</span>
+          <span class="etiqueta">
+            @if (alimento.marca) {
+              {{ alimento.marca }} ·
+            }
+            {{ alimento.kcal100g | number: "1.0-0" }} kcal /
+            {{ alimento.tipoMedida === "liquido" ? "100 ml" : "100 g" }}
+          </span>
+        </span>
+        @if (esFavorito(alimento)) {
+          <ion-icon
+            class="estrella"
+            name="star"
+            aria-label="Favorito"
+          ></ion-icon>
+        }
+      </button>
+    </ng-template>
 
-  @if (textoBusqueda() !== "") {
-    <ion-list>
-      @for (alimento of resultados(); track alimento.id) {
-        <ng-container
-          *ngTemplateOutlet="fila; context: { $implicit: alimento }"
-        />
-      } @empty {
-        <ion-item><ion-label>Sin resultados</ion-label></ion-item>
+    <ion-searchbar
+      placeholder="Buscar alimento"
+      [debounce]="200"
+      (ionInput)="buscar($event.detail.value)"
+    ></ion-searchbar>
+
+    @if (textoBusqueda() !== "") {
+      <div class="tarjeta lista">
+        @for (alimento of resultados(); track alimento.id) {
+          <ng-container
+            *ngTemplateOutlet="fila; context: { $implicit: alimento }"
+          />
+        } @empty {
+          <p class="vacio etiqueta">Sin resultados.</p>
+        }
+      </div>
+      @if (resultados().length === 0) {
         <ion-button
           expand="block"
-          fill="clear"
+          fill="outline"
           (click)="crearAlimento(textoBusqueda())"
           >Crear «{{ textoBusqueda() }}»</ion-button
         >
       }
-    </ion-list>
-  } @else {
-    <ion-segment
-      [scrollable]="true"
-      [value]="pestana()"
-      (ionChange)="cambiarPestana($event.detail.value)"
-    >
-      <ion-segment-button value="todos"
-        ><ion-label>Todos</ion-label></ion-segment-button
-      >
-      <ion-segment-button value="favoritos"
-        ><ion-label>Favoritos</ion-label></ion-segment-button
-      >
-      <ion-segment-button value="usados"
-        ><ion-label>Más usados</ion-label></ion-segment-button
-      >
-      <ion-segment-button value="ayer"
-        ><ion-label>Ayer</ion-label></ion-segment-button
-      >
-      <ion-segment-button value="plantillas"
-        ><ion-label>Plantillas</ion-label></ion-segment-button
-      >
-    </ion-segment>
+    } @else {
+      <div class="chips" role="tablist">
+        @for (opcion of opciones; track opcion.valor) {
+          <button
+            type="button"
+            class="chip"
+            role="tab"
+            [class.sel]="pestana() === opcion.valor"
+            [attr.aria-selected]="pestana() === opcion.valor"
+            (click)="cambiarPestana(opcion.valor)"
+          >
+            {{ opcion.nombre }}
+          </button>
+        }
+      </div>
 
-    @switch (pestana()) {
-      @case ("todos") {
-        <ion-list>
-          @for (alimento of todos(); track alimento.id) {
-            <ng-container
-              *ngTemplateOutlet="fila; context: { $implicit: alimento }"
-            />
-          }
-        </ion-list>
-      }
-      @case ("favoritos") {
-        <ion-list>
-          @for (alimento of favoritosVisibles(); track alimento.id) {
-            <ng-container
-              *ngTemplateOutlet="fila; context: { $implicit: alimento }"
-            />
-          } @empty {
-            <ion-item
-              ><ion-label class="ion-text-wrap"
-                >Aún no tienes favoritos. Márcalos desde el detalle de un
-                alimento.</ion-label
-              ></ion-item
-            >
-          }
-        </ion-list>
-      }
-      @case ("usados") {
-        <ion-list>
-          @for (alimento of usadosVisibles(); track alimento.id) {
-            <ng-container
-              *ngTemplateOutlet="fila; context: { $implicit: alimento }"
-            />
-          } @empty {
-            <ion-item
-              ><ion-label class="ion-text-wrap"
-                >Todavía no has registrado ningún alimento.</ion-label
-              ></ion-item
-            >
-          }
-        </ion-list>
-      }
-      @case ("ayer") {
-        <ion-list>
-          @for (grupo of comidasAyer(); track grupo.tipo) {
-            <ion-item button (click)="repetirDeAyer(grupo)">
-              <ion-label>
-                <h3>{{ etiquetaComida(grupo.tipo) }}</h3>
-                <p>
-                  {{ grupo.registros.length }} alimento(s) ·
-                  {{ kcalDe(grupo) | number: "1.0-0" }} kcal
-                </p>
-              </ion-label>
-            </ion-item>
-          } @empty {
-            <ion-item
-              ><ion-label class="ion-text-wrap"
-                >Ayer no registraste nada.</ion-label
-              ></ion-item
-            >
-          }
-        </ion-list>
-      }
-      @case ("plantillas") {
-        <ion-list>
-          @for (plantilla of plantillas(); track plantilla.id) {
-            <ion-item>
-              <ion-label>
-                <h3>{{ plantilla.nombre }}</h3>
-                <p>
-                  {{ plantilla.lineas.length }} alimento(s) ·
-                  {{ etiquetaComida(plantilla.tipoComidaSugerido) }}
-                </p>
-              </ion-label>
-              <ion-button
-                slot="end"
-                fill="clear"
-                (click)="usarPlantilla(plantilla)"
-                >Usar</ion-button
+      @switch (pestana()) {
+        @case ("todos") {
+          <div class="tarjeta lista">
+            @for (alimento of todos(); track alimento.id) {
+              <ng-container
+                *ngTemplateOutlet="fila; context: { $implicit: alimento }"
+              />
+            }
+          </div>
+        }
+        @case ("favoritos") {
+          <div class="tarjeta lista">
+            @for (alimento of favoritosVisibles(); track alimento.id) {
+              <ng-container
+                *ngTemplateOutlet="fila; context: { $implicit: alimento }"
+              />
+            } @empty {
+              <p class="vacio etiqueta">
+                Aún no tienes favoritos. Márcalos desde el detalle de un
+                alimento.
+              </p>
+            }
+          </div>
+        }
+        @case ("usados") {
+          <div class="tarjeta lista">
+            @for (alimento of usadosVisibles(); track alimento.id) {
+              <ng-container
+                *ngTemplateOutlet="fila; context: { $implicit: alimento }"
+              />
+            } @empty {
+              <p class="vacio etiqueta">
+                Todavía no has registrado ningún alimento.
+              </p>
+            }
+          </div>
+        }
+        @case ("ayer") {
+          <div class="tarjeta lista">
+            @for (grupo of comidasAyer(); track grupo.tipo) {
+              <button
+                type="button"
+                class="fila-lista"
+                (click)="repetirDeAyer(grupo)"
               >
-              <ion-button
-                slot="end"
-                fill="clear"
-                color="danger"
-                (click)="pedirEliminarPlantilla(plantilla)"
-                >Eliminar</ion-button
-              >
-            </ion-item>
-          } @empty {
-            <ion-item
-              ><ion-label class="ion-text-wrap"
-                >No tienes plantillas. Puedes guardar una desde el
-                Historial.</ion-label
-              ></ion-item
-            >
-          }
-        </ion-list>
+                <span class="fila-texto">
+                  <span class="fila-titulo">{{
+                    etiquetaComida(grupo.tipo)
+                  }}</span>
+                  <span class="etiqueta">
+                    {{ grupo.registros.length }} alimento(s) ·
+                    {{ kcalDe(grupo) | number: "1.0-0" }} kcal
+                  </span>
+                </span>
+                <ion-icon
+                  class="chevron"
+                  name="chevron-forward-outline"
+                ></ion-icon>
+              </button>
+            } @empty {
+              <p class="vacio etiqueta">Ayer no registraste nada.</p>
+            }
+          </div>
+        }
+        @case ("plantillas") {
+          <div class="tarjeta lista">
+            @for (plantilla of plantillas(); track plantilla.id) {
+              <div class="fila-lista">
+                <span class="fila-texto">
+                  <span class="fila-titulo">{{ plantilla.nombre }}</span>
+                  <span class="etiqueta">
+                    {{ plantilla.lineas.length }} alimento(s) ·
+                    {{ etiquetaComida(plantilla.tipoComidaSugerido) }}
+                  </span>
+                </span>
+                <ion-button fill="clear" (click)="usarPlantilla(plantilla)"
+                  >Usar</ion-button
+                >
+                <ion-button
+                  class="icono"
+                  fill="clear"
+                  color="danger"
+                  [attr.aria-label]="'Eliminar ' + plantilla.nombre"
+                  (click)="pedirEliminarPlantilla(plantilla)"
+                >
+                  <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            } @empty {
+              <p class="vacio etiqueta">
+                No tienes plantillas. Puedes guardar una desde el Historial.
+              </p>
+            }
+          </div>
+        }
+      }
+
+      @if (hayMas()) {
+        <ion-button expand="block" fill="outline" (click)="verMas()"
+          >Ver más</ion-button
+        >
       }
     }
 
-    @if (hayMas()) {
-      <ion-button expand="block" fill="outline" (click)="verMas()"
-        >Ver más</ion-button
+    @if (mensaje()) {
+      <p class="etiqueta">{{ mensaje() }}</p>
+    }
+    @if (codigoPendiente(); as codigo) {
+      <ion-button expand="block" (click)="crearConCodigo(codigo)"
+        >Crear alimento con el código {{ codigo }}</ion-button
       >
     }
-  }
-  @if (mensaje()) {
-    <p>{{ mensaje() }}</p>
-  }
-  @if (codigoPendiente(); as codigo) {
-    <ion-button expand="block" (click)="crearConCodigo(codigo)"
-      >Crear alimento con el código {{ codigo }}</ion-button
-    >
-  }
+  </div>
 </ion-content>

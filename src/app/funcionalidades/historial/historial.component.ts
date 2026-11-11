@@ -7,12 +7,16 @@ import {
   IonTitle,
   IonContent,
   IonButton,
-  IonList,
-  IonItem,
-  IonLabel,
+  IonIcon,
   ViewWillEnter,
   ToastController,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import {
+  chevronDownOutline,
+  chevronUpOutline,
+  trashOutline,
+} from 'ionicons/icons';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { REGISTRO_CONSUMO_REPOSITORY } from '../../nucleo/repositorios/registro-consumo.repository';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
@@ -57,9 +61,7 @@ interface DiaHistorial {
     IonTitle,
     IonContent,
     IonButton,
-    IonList,
-    IonItem,
-    IonLabel,
+    IonIcon,
   ],
 })
 export class HistorialComponent implements OnInit, ViewWillEnter {
@@ -83,6 +85,10 @@ export class HistorialComponent implements OnInit, ViewWillEnter {
   protected diasMostrados = DIAS_POR_TANDA;
 
   protected readonly etiquetaDia = etiquetaDia;
+
+  constructor() {
+    addIcons({ chevronDownOutline, chevronUpOutline, trashOutline });
+  }
 
   async ionViewWillEnter(): Promise<void> {
     await this.cargar();

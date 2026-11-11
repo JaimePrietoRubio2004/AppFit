@@ -13,16 +13,17 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonItem,
-  IonLabel,
+  IonButtons,
+  IonBackButton,
+  IonIcon,
   IonInput,
   IonSelect,
   IonSelectOption,
   IonButton,
-  IonSegment,
-  IonSegmentButton,
   ViewWillEnter,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { createOutline, star, starOutline } from 'ionicons/icons';
 import { ALIMENTO_REPOSITORY } from '../../nucleo/repositorios/alimento.repository';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import {
@@ -52,15 +53,14 @@ const MANUAL = 'manual';
     IonToolbar,
     IonTitle,
     IonContent,
-    IonItem,
-    IonLabel,
+    IonButtons,
+    IonBackButton,
+    IonIcon,
     IonInput,
     IonSelect,
     IonSelectOption,
     IonButton,
     DecimalPipe,
-    IonSegment,
-    IonSegmentButton,
   ],
 })
 export class DetalleAlimentoComponent implements OnInit, ViewWillEnter {
@@ -128,6 +128,10 @@ export class DetalleAlimentoComponent implements OnInit, ViewWillEnter {
       this.nombreUnidadTexto().trim() !== '' &&
       this.gramosPorUnidadCalculados() > 0,
   );
+
+  constructor() {
+    addIcons({ createOutline, star, starOutline });
+  }
 
   async ngOnInit(): Promise<void> {
     const id = Number(this.route.snapshot.paramMap.get('id'));

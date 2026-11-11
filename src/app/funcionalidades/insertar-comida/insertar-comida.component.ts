@@ -4,11 +4,10 @@ import { Router } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
-  IonTitle,
   IonContent,
-  IonList,
-  IonItem,
-  IonLabel,
+  IonButtons,
+  IonBackButton,
+  IonIcon,
   IonInput,
   IonSelect,
   IonSelectOption,
@@ -16,9 +15,9 @@ import {
   IonSearchbar,
   AlertController,
   ToastController,
-  IonSegment,
-  IonSegmentButton,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { addOutline, trashOutline } from 'ionicons/icons';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { TipoComida } from '../../nucleo/modelos/registro-consumo.model';
 import {
@@ -40,18 +39,15 @@ const G = 'g';
     DecimalPipe,
     IonHeader,
     IonToolbar,
-    IonTitle,
     IonContent,
-    IonList,
-    IonItem,
-    IonLabel,
+    IonButtons,
+    IonBackButton,
+    IonIcon,
     IonInput,
     IonSelect,
     IonSelectOption,
     IonButton,
     IonSearchbar,
-    IonSegment,
-    IonSegmentButton,
   ],
 })
 export class InsertarComidaComponent implements OnInit {
@@ -81,6 +77,10 @@ export class InsertarComidaComponent implements OnInit {
       this.lineas().length > 0 &&
       this.lineas().every((linea) => linea.cantidad > 0),
   );
+
+  constructor() {
+    addIcons({ addOutline, trashOutline });
+  }
 
   ngOnInit(): void {
     const propuesta = this.insertarComida.propuesta();

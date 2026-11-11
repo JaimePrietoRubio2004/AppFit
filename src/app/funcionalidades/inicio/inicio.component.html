@@ -1,99 +1,131 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Inicio</ion-title>
+    <div slot="end" class="avatar" [style.background]="colorPerfil()">
+      {{ inicialPerfil() }}
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <p>Perfil activo: {{ textoPerfil() }}</p>
-
-  @if (objetivo(); as o) {
-    <p class="cifra-principal">
-      {{ totalKcal() | number: "1.0-0" }}
-      <span class="cifra-objetivo"
-        >/ {{ o.kcalObjetivo | number: "1.0-0" }} kcal</span
-      >
-    </p>
-    <ion-progress-bar [value]="fraccionKcal()"></ion-progress-bar>
-
-    @if (totalKcal() > o.kcalObjetivo) {
-      <p class="superado">
-        Por encima del objetivo en
-        {{ totalKcal() - o.kcalObjetivo | number: "1.0-0" }} kcal
+  <section class="tarjeta resumen">
+    @if (objetivo(); as o) {
+      <p class="cifra-principal">
+        {{ totalKcal() | number: "1.0-0" }}
+        <span class="cifra-objetivo"
+          >/ {{ o.kcalObjetivo | number: "1.0-0" }} kcal</span
+        >
       </p>
-    }
+      <ion-progress-bar
+        [value]="fraccionKcal()"
+        [class.superado]="totalKcal() > o.kcalObjetivo"
+      ></ion-progress-bar>
 
-    <p class="macro macro-proteina">
-      Proteína: {{ totalProteina() | number: "1.0-0" }} /
-      {{ o.proteinaG | number: "1.0-0" }} g
-    </p>
-    <p class="macro macro-grasa">
-      Grasa: {{ totalGrasa() | number: "1.0-0" }} /
-      {{ o.grasaG | number: "1.0-0" }} g
-    </p>
-    <p class="macro macro-carbohidrato">
-      Hidratos: {{ totalCarbohidrato() | number: "1.0-0" }} /
-      {{ o.carbohidratoG | number: "1.0-0" }} g
-    </p>
-  } @else {
-    <p>
-      Hoy: {{ totalKcal() | number: "1.0-0" }} kcal ·
-      {{ totalProteina() | number: "1.0-1" }} g proteína ·
-      {{ totalGrasa() | number: "1.0-1" }} g grasa ·
-      {{ totalCarbohidrato() | number: "1.0-1" }} g hidratos
-    </p>
-  }
-  @if (totalKcalAlcohol() > 0) {
-    <p class="discreto macro">
-      Incluye {{ totalKcalAlcohol() | number: "1.0-0" }} kcal de alcohol.
-    </p>
-  }
-  <ion-button expand="block" routerLink="/anadir-alimento">
-    Añadir consumición</ion-button
-  >
-  <ion-button expand="block" fill="outline" routerLink="/editar-alimento">
-    Añadir alimento</ion-button
-  >
-  <ion-button expand="block" fill="outline" (click)="nuevaPlantilla()">
-    Añadir plantilla</ion-button
-  >
-  <div class="comidas">
-    <h2>Comidas de hoy</h2>
+      @if (totalKcal() > o.kcalObjetivo) {
+        <p class="etiqueta estado superado">
+          Por encima del objetivo en
+          {{ totalKcal() - o.kcalObjetivo | number: "1.0-0" }} kcal
+        </p>
+      } @else {
+        <p class="etiqueta estado">
+          Quedan {{ o.kcalObjetivo - totalKcal() | number: "1.0-0" }} kcal
+        </p>
+      }
+      @if (totalKcalAlcohol() > 0) {
+        <p class="auxiliar">
+          Incluye {{ totalKcalAlcohol() | number: "1.0-0" }} kcal de alcohol.
+        </p>
+      }
 
-    @for (grupo of grupos(); track grupo.tipo) {
-      <ion-list>
-        <ion-item lines="none">
-          <ion-label>
-            <h3 class="cifras">
-              {{ etiquetaComida(grupo.tipo) }} ·
-              {{ kcalDe(grupo) | number: "1.0-0" }} kcal
-            </h3>
-          </ion-label>
-        </ion-item>
-        @for (registro of grupo.registros; track registro.id) {
-          <ion-item>
-            <ion-label>
-              <h3>{{ nombresAlimento()[registro.alimentoId] }}</h3>
-              <p class="cifras">
-                {{ descripcionCantidad(registro) }} ·
-                {{ registro.kcal | number: "1.0-0" }} kcal
-                @if (registro.esEstimado) {
-                  · <span class="estimado">estimado</span>
-                }
-              </p>
-            </ion-label>
-            <ion-button
-              slot="end"
-              fill="clear"
-              color="danger"
-              (click)="pedirEliminar(registro)"
-              >Eliminar</ion-button
-            >
-          </ion-item>
+      <div class="macros">
+        @for (m of macros(); track m.clave) {
+          <div [class]="'macro macro-' + m.clave">
+            <p class="etiqueta">{{ m.nombre }}</p>
+            <p class="macro-valor">
+              {{ m.total | number: "1.0-0" }} /
+              {{ m.objetivo | number: "1.0-0" }} g
+            </p>
+            <div class="barra-macro">
+              <div
+                class="relleno"
+                [style.width.%]="fraccion(m.total, m.objetivo) * 100"
+              ></div>
+            </div>
+          </div>
         }
-      </ion-list>
-    } @empty {
-      <p class="discreto">Aún no has registrado nada hoy.</p>
+      </div>
+    } @else {
+      <p class="cuerpo-fuerte">
+        Hoy: {{ totalKcal() | number: "1.0-0" }} kcal
+      </p>
+      <p class="etiqueta">
+        {{ totalProteina() | number: "1.0-1" }} g proteína ·
+        {{ totalGrasa() | number: "1.0-1" }} g grasa ·
+        {{ totalCarbohidrato() | number: "1.0-1" }} g hidratos
+      </p>
+      @if (totalKcalAlcohol() > 0) {
+        <p class="auxiliar">
+          Incluye {{ totalKcalAlcohol() | number: "1.0-0" }} kcal de alcohol.
+        </p>
+      }
     }
+  </section>
+
+  <div class="acciones">
+    <ion-button expand="block" routerLink="/anadir-alimento">
+      Añadir consumición
+    </ion-button>
+    <div class="fila-botones">
+      <ion-button fill="outline" routerLink="/editar-alimento">
+        Añadir alimento
+      </ion-button>
+      <ion-button fill="outline" (click)="nuevaPlantilla()">
+        Añadir plantilla
+      </ion-button>
+    </div>
   </div>
+
+  <h2 class="titulo-seccion">Comidas de hoy</h2>
+
+  @for (grupo of grupos(); track grupo.tipo) {
+    <section class="tarjeta grupo">
+      <div class="grupo-cabecera">
+        <span class="cuerpo-fuerte">{{ etiquetaComida(grupo.tipo) }}</span>
+        <span class="cuerpo-fuerte"
+          >{{ kcalDe(grupo) | number: "1.0-0" }} kcal</span
+        >
+      </div>
+      @for (registro of grupo.registros; track registro.id) {
+        <div class="linea">
+          <div class="linea-texto">
+            <p class="linea-nombre">
+              {{ nombresAlimento()[registro.alimentoId] }}
+            </p>
+            <p class="etiqueta">
+              {{ descripcionCantidad(registro) }}
+              @if (registro.esEstimado) {
+                · <span class="estimado">estimado</span>
+              }
+            </p>
+          </div>
+          <span class="cuerpo-fuerte"
+            >{{ registro.kcal | number: "1.0-0" }} kcal</span
+          >
+          <ion-button
+            class="icono"
+            fill="clear"
+            color="danger"
+            [attr.aria-label]="
+              'Eliminar ' + nombresAlimento()[registro.alimentoId]
+            "
+            (click)="pedirEliminar(registro)"
+          >
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </div>
+      }
+    </section>
+  } @empty {
+    <p class="etiqueta">Aún no has registrado nada hoy.</p>
+  }
 </ion-content>

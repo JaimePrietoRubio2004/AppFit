@@ -7,14 +7,14 @@ import {
   IonTitle,
   IonContent,
   IonButton,
-  IonItem,
-  IonLabel,
+  IonButtons,
+  IonBackButton,
   IonInput,
   IonSelect,
   IonSelectOption,
-  IonList,
   ViewWillEnter,
 } from '@ionic/angular';
+import { SelectorActividadComponent } from '../../compartido/selector-actividad/selector-actividad.component';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { REGISTRO_PESO_REPOSITORY } from '../../nucleo/repositorios/registro-peso.repository';
 import {
@@ -44,12 +44,12 @@ const IMC_MINIMO = 18.5;
     IonTitle,
     IonContent,
     IonButton,
-    IonItem,
-    IonLabel,
+    IonButtons,
+    IonBackButton,
     IonInput,
     IonSelect,
     IonSelectOption,
-    IonList,
+    SelectorActividadComponent,
   ],
 })
 export class EditarPerfilComponent implements ViewWillEnter {

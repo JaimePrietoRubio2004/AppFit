@@ -1,11 +1,21 @@
-.acciones-ocr {
-  display: flex;
-  gap: 8px;
-  margin: 16px 0;
+.rejilla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--app-espacio-12);
+}
+
+ion-toggle {
+  font: 400 16px/24px var(--ion-font-family);
+  color: var(--app-texto);
+
+  &::part(label) {
+    white-space: normal;
+  }
 }
 
 .texto-leido {
   user-select: text;
   white-space: pre-wrap;
   font-size: 13px;
+  color: var(--app-texto-secundario);
 }

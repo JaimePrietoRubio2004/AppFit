@@ -1,40 +1,107 @@
+.resumen {
+  margin-bottom: var(--app-espacio-16);
+}
+
 .cifra-principal {
-  font-size: 40px;
-  line-height: 44px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  margin: 0 0 8px;
+  margin: 0 0 var(--app-espacio-8);
 }
 
 .cifra-objetivo {
   font-size: 18px;
+  line-height: 24px;
   font-weight: 400;
-  color: var(--ion-color-medium);
+  color: var(--app-texto-secundario);
 }
 
-.superado {
-  color: var(--app-estado-superado);
+ion-progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  --background: var(--app-borde);
+  --progress-background: var(--app-primario);
+
+  &.superado {
+    --progress-background: var(--app-estado-superado);
+  }
 }
 
-.macro {
-  font-variant-numeric: tabular-nums;
-  margin: 4px 0;
+.estado {
+  margin: var(--app-espacio-12) 0 0;
+
+  &.superado {
+    color: var(--app-estado-superado);
+  }
 }
 
-.macro-proteina {
-  color: var(--app-macro-proteina);
-}
-.macro-grasa {
-  color: var(--app-macro-grasa);
-}
-.macro-carbohidrato {
-  color: var(--app-macro-carbohidrato);
+.auxiliar {
+  margin: var(--app-espacio-8) 0 0;
 }
 
-.discreto.macro {
-  margin-bottom: 16px;
+.macros {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--app-espacio-12);
+  margin-top: var(--app-espacio-16);
+  padding-top: var(--app-espacio-16);
+  border-top: 1px solid var(--app-borde);
+
+  p {
+    margin: 0;
+  }
 }
 
-.comidas {
-  margin-top: 24px;
+.macro-valor {
+  font: 600 14px/20px var(--ion-font-family);
+  white-space: nowrap;
+}
+
+.acciones {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-espacio-8);
+  margin-bottom: var(--app-espacio-24);
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.titulo-seccion {
+  margin: 0 0 var(--app-espacio-12);
+}
+
+.grupo {
+  padding: 0;
+  margin-bottom: var(--app-espacio-12);
+  overflow: hidden;
+}
+
+.grupo-cabecera,
+.linea {
+  display: flex;
+  align-items: center;
+  gap: var(--app-espacio-12);
+  padding: var(--app-espacio-8) var(--app-espacio-16);
+}
+
+.grupo-cabecera {
+  justify-content: space-between;
+  min-height: var(--app-tactil);
+}
+
+.linea {
+  border-top: 1px solid var(--app-borde);
+  padding-right: var(--app-espacio-4);
+}
+
+.linea-texto {
+  flex: 1;
+  min-width: 0;
+
+  p {
+    margin: 0;
+  }
+}
+
+.linea-nombre {
+  font: 400 16px/24px var(--ion-font-family);
 }

@@ -4,18 +4,9 @@ import { DecimalPipe } from '@angular/common';
 import { ViewWillEnter } from '@ionic/angular';
 import { Router } from '@angular/router';
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonButton,
-  IonItem,
-  IonLabel,
   IonInput,
-  IonSelect,
-  IonSelectOption,
-  IonList,
-  IonText,
 } from '@ionic/angular';
 
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
@@ -31,27 +22,54 @@ import {
 } from '../../nucleo/modelos/perfil.model';
 import { fechaLocal } from '../../nucleo/utilidades/fecha';
 import { textoLimite } from '../../nucleo/utilidades/limite-objetivo';
+import { SelectorActividadComponent } from '../../compartido/selector-actividad/selector-actividad.component';
 
 const COLOR_AVATAR_POR_DEFECTO = '#0F766E';
+
+const OBJETIVOS: {
+  valor: ObjetivoCorporal;
+  nombre: string;
+  descripcion: string;
+}[] = [
+  {
+    valor: 'ganar_masa',
+    nombre: 'Ganar masa',
+    descripcion: 'Superávit moderado de calorías.',
+  },
+  {
+    valor: 'perder_grasa',
+    nombre: 'Perder grasa',
+    descripcion: 'Déficit moderado, con límites de seguridad.',
+  },
+  {
+    valor: 'recomposicion',
+    nombre: 'Recomposición',
+    descripcion: 'Mantenimiento con proteína alta.',
+  },
+];
+
+const TEXTOS_PASO = {
+  1: {
+    titulo: 'Bienvenido a AppFit',
+    subtitulo: 'Cuéntanos sobre ti para calcular tu objetivo.',
+  },
+  2: { titulo: 'Tu objetivo', subtitulo: 'Elige qué quieres conseguir.' },
+  3: {
+    titulo: 'Tu plan',
+    subtitulo: 'Esto es lo que calculamos con tus datos.',
+  },
+} as const;
 @Component({
   selector: 'app-configuracion-inicial',
   templateUrl: './configuracion-inicial.component.html',
   styleUrls: ['./configuracion-inicial.component.scss'],
   imports: [
     FormsModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
     IonButton,
-    IonItem,
-    IonLabel,
     IonInput,
-    IonSelect,
-    IonSelectOption,
-    IonList,
-    IonText,
     DecimalPipe,
+    SelectorActividadComponent,
   ],
 })
 export class ConfiguracionInicialComponent implements ViewWillEnter {
@@ -74,6 +92,12 @@ export class ConfiguracionInicialComponent implements ViewWillEnter {
   private readonly router = inject(Router);
 
   protected readonly paso = signal<1 | 2 | 3>(1);
+  protected readonly pasos = [1, 2, 3];
+  protected readonly objetivos = OBJETIVOS;
+  protected readonly titulo = computed(() => TEXTOS_PASO[this.paso()].titulo);
+  protected readonly subtitulo = computed(
+    () => TEXTOS_PASO[this.paso()].subtitulo,
+  );
 
   protected readonly nombre = signal('');
   protected readonly sexo = signal<Sexo>('hombre');

@@ -1,24 +1,34 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Elegir perfil</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <div class="pagina pagina-sin-cabecera">
+    <header class="cabecera">
+      <h1 class="titulo-pantalla">¿Quién eres?</h1>
+      <p class="secundario">Elige tu perfil para continuar.</p>
+    </header>
 
-<ion-content class="ion-padding">
-  <ion-list>
     @for (perfil of perfiles(); track perfil.id) {
-      <ion-item button (click)="elegir(perfil)">
-        <ion-label>
-          {{ perfil.nombre }}
+      <button
+        type="button"
+        class="tarjeta tarjeta-perfil"
+        [class.ultimo]="perfil.esUltimoUsado"
+        (click)="elegir(perfil)"
+      >
+        <span class="avatar grande" [style.background]="perfil.colorAvatar">
+          {{ perfil.nombre.charAt(0).toUpperCase() }}
+        </span>
+        <span class="datos">
+          <span class="cuerpo-fuerte">{{ perfil.nombre }}</span>
+          <span class="etiqueta">{{ resumen(perfil) }}</span>
           @if (perfil.esUltimoUsado) {
-            <p>Último usado</p>
+            <span class="insignia">Último usado</span>
           }
-        </ion-label>
-      </ion-item>
+        </span>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
     }
-  </ion-list>
 
-  <ion-button expand="block" (click)="nuevoPerfil()"
-    >Crear nuevo perfil</ion-button
-  >
+    <ion-button expand="block" fill="outline" (click)="nuevoPerfil()">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Crear perfil nuevo
+    </ion-button>
+  </div>
 </ion-content>

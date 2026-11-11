@@ -1,0 +1,37 @@
+.actividad {
+  display: flex;
+  align-items: center;
+  gap: var(--app-espacio-12);
+  width: 100%;
+  min-height: var(--app-tactil);
+  padding: var(--app-espacio-12) var(--app-espacio-16);
+  border: 1px solid var(--app-borde);
+  border-radius: var(--app-radio-control);
+  background: var(--app-superficie);
+  color: var(--app-texto);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.actividad-texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.actividad ion-icon {
+  flex: none;
+  font-size: 20px;
+  color: var(--app-texto-secundario);
+}
+
+.hoja-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-espacio-12);
+  padding: var(--app-espacio-24) var(--app-espacio-16)
+    calc(var(--ion-safe-area-bottom, 0px) + var(--app-espacio-24));
+  overflow-y: auto;
+}

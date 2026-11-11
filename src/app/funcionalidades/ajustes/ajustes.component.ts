@@ -5,9 +5,20 @@ import {
   IonTitle,
   IonContent,
   IonButton,
+  IonIcon,
   AlertController,
   ViewWillEnter,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import {
+  chevronForwardOutline,
+  cloudUploadOutline,
+  downloadOutline,
+} from 'ionicons/icons';
+import {
+  Apariencia,
+  PreferenciaApariencia,
+} from '../../nucleo/servicios/apariencia';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
 import { ToastController } from '@ionic/angular';
 import { COPIA_SEGURIDAD_REPOSITORY } from '../../nucleo/repositorios/copia-seguridad.repository';
@@ -19,13 +30,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { ObjetivoPerfil } from '../../nucleo/servicios/objetivo-perfil';
 import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
-import { ObjetivoCorporal, Perfil } from '../../nucleo/modelos/perfil.model';
+import { Perfil } from '../../nucleo/modelos/perfil.model';
+import { etiquetaObjetivo } from '../../nucleo/utilidades/objetivo';
 
-const ETIQUETA_OBJETIVO: Record<ObjetivoCorporal, string> = {
-  ganar_masa: 'Ganar masa',
-  perder_grasa: 'Perder grasa',
-  recomposicion: 'Recomposición',
-};
+const OPCIONES_APARIENCIA: { valor: PreferenciaApariencia; nombre: string }[] =
+  [
+    { valor: 'automatica', nombre: 'Automático' },
+    { valor: 'claro', nombre: 'Claro' },
+    { valor: 'oscuro', nombre: 'Oscuro' },
+  ];
+
 @Component({
   selector: 'app-ajustes',
   templateUrl: './ajustes.component.html',
@@ -35,6 +49,7 @@ const ETIQUETA_OBJETIVO: Record<ObjetivoCorporal, string> = {
     IonTitle,
     IonHeader,
     IonButton,
+    IonIcon,
     IonToolbar,
     DecimalPipe,
   ],
@@ -47,6 +62,8 @@ export class AjustesComponent implements OnInit, ViewWillEnter {
   private readonly copiaRepository = inject(COPIA_SEGURIDAD_REPOSITORY);
   private readonly toastController = inject(ToastController);
   private readonly objetivoPerfil = inject(ObjetivoPerfil);
+  protected readonly apariencia = inject(Apariencia);
+  protected readonly opcionesApariencia = OPCIONES_APARIENCIA;
 
   protected readonly objetivoActual = signal<ObjetivoCalculado | null>(null);
   protected readonly mensaje = signal<string | null>(null);
@@ -54,6 +71,7 @@ export class AjustesComponent implements OnInit, ViewWillEnter {
   protected readonly puedeEliminar = signal(true);
 
   constructor() {
+    addIcons({ chevronForwardOutline, cloudUploadOutline, downloadOutline });
     this.router.events
       .pipe(
         filter(
@@ -66,9 +84,7 @@ export class AjustesComponent implements OnInit, ViewWillEnter {
       .subscribe(() => void this.cargar());
   }
 
-  protected etiquetaObjetivo(objetivo: ObjetivoCorporal): string {
-    return ETIQUETA_OBJETIVO[objetivo];
-  }
+  protected readonly etiquetaObjetivo = etiquetaObjetivo;
 
   async ionViewWillEnter(): Promise<void> {
     await this.cargar();

@@ -1,175 +1,292 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/anadir-alimento"
+        text=""
+        aria-label="Volver"
+      ></ion-back-button>
+    </ion-buttons>
     <ion-title>{{ alimento()?.nombre ?? "Cargando..." }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   @if (alimento(); as a) {
-    <p>
-      Por 100 g : {{ a.kcal100g }} kcal * {{ a.proteina100g }} g proteina *
-      {{ a.grasa100g }} g grasas * {{ a.carbohidrato100g }} g hidratos
-    </p>
-    @if (a.esEstimado) {
-      <p class="estimado">Valores estimados: no proceden de una etiqueta.</p>
-    }
+    <div class="pagina">
+      <section class="tarjeta bloque">
+        <p class="etiqueta">Por 100 {{ etiquetaBase() }}</p>
+        <p class="cifra-media">{{ a.kcal100g | number: "1.0-0" }} kcal</p>
+        <div class="macros-tres">
+          <div class="macro-col">
+            <span class="etiqueta"
+              ><i class="punto proteina"></i> Proteína</span
+            >
+            <span class="cuerpo-fuerte"
+              >{{ a.proteina100g | number: "1.0-1" }} g</span
+            >
+          </div>
+          <div class="macro-col">
+            <span class="etiqueta"><i class="punto grasa"></i> Grasa</span>
+            <span class="cuerpo-fuerte"
+              >{{ a.grasa100g | number: "1.0-1" }} g</span
+            >
+          </div>
+          <div class="macro-col">
+            <span class="etiqueta"
+              ><i class="punto carbohidrato"></i> Hidratos</span
+            >
+            <span class="cuerpo-fuerte"
+              >{{ a.carbohidrato100g | number: "1.0-1" }} g</span
+            >
+          </div>
+        </div>
+        @if (a.esEstimado) {
+          <p class="etiqueta">
+            Valores estimados: no proceden de una etiqueta.
+          </p>
+        }
+      </section>
 
-    <ion-button fill="outline" (click)="alternarFavorito()">
-      {{ esFavorito() ? "Quitar de favoritos" : "Añadir a favoritos" }}
-    </ion-button>
-    <ion-button fill="outline" (click)="editar()">Editar valores</ion-button>
+      <div class="fila botones">
+        <ion-button fill="outline" (click)="alternarFavorito()">
+          <ion-icon
+            slot="start"
+            [name]="esFavorito() ? 'star' : 'star-outline'"
+          ></ion-icon>
+          Favorito
+        </ion-button>
+        <ion-button fill="outline" (click)="editar()">
+          <ion-icon slot="start" name="create-outline"></ion-icon>
+          Editar
+        </ion-button>
+      </div>
 
-    <ion-item>
-      <ion-label position="stacked">
-        Cantidad ({{ modo() === "unidad" ? a.nombreUnidad : etiquetaBase() }})
-      </ion-label>
-      <ion-input
-        type="number"
-        step="0.1"
-        [value]="cantidad()"
-        (ionInput)="actualizarCantidad($event.detail.value)"
-      >
-      </ion-input>
-    </ion-item>
-
-    @if (tieneUnidad()) {
-      <ion-segment
-        [value]="modo()"
-        (ionChange)="seleccionarModo($event.detail.value)"
-      >
-        <ion-segment-button value="base">
-          <ion-label>{{ etiquetaBase() }}</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="unidad">
-          <ion-label>{{ a.nombreUnidad }}</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-
-      @if (modo() === "unidad") {
-        <p>= {{ gramos() | number: "1.0-1" }} {{ etiquetaBase() }}</p>
-      }
-    }
-
-    @if (!definiendoUnidad()) {
-      <ion-button
-        class="boton-unidad"
-        expand="block"
-        fill="outline"
-        (click)="abrirDefinicion()"
-      >
-        {{ tieneUnidad() ? "Cambiar unidad" : "Definir unidad" }}
-      </ion-button>
-    } @else {
-      <ion-item>
-        <ion-label position="stacked"
-          >Nombre de la unidad (loncha, cucharada, taza…)</ion-label
-        >
-        <ion-input
-          [value]="nombreUnidadTexto()"
-          (ionInput)="actualizarTexto(nombreUnidadTexto, $event.detail.value)"
-        ></ion-input>
-      </ion-item>
-
-      <ion-segment
-        [value]="metodoUnidad()"
-        (ionChange)="
-          metodoUnidad.set(
-            $event.detail.value === 'calculo' ? 'calculo' : 'directo'
-          )
-        "
-      >
-        <ion-segment-button value="directo">
-          <ion-label>Lo sé</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="calculo">
-          <ion-label>Calcularlo</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-
-      @if (metodoUnidad() === "directo") {
-        <ion-item>
-          <ion-label position="stacked"
-            >Peso de una unidad ({{ etiquetaBase() }})</ion-label
-          >
+      <div class="campo">
+        <span class="campo-etiqueta">
+          Cantidad ({{ modo() === "unidad" ? a.nombreUnidad : etiquetaBase() }})
+        </span>
+        <div class="campo-caja">
           <ion-input
             type="number"
+            inputmode="decimal"
             step="0.1"
-            [value]="gramosUnidadTexto()"
-            (ionInput)="actualizarTexto(gramosUnidadTexto, $event.detail.value)"
+            aria-label="Cantidad"
+            [value]="cantidad()"
+            (ionInput)="actualizarCantidad($event.detail.value)"
           ></ion-input>
-        </ion-item>
-      } @else {
-        <ion-item>
-          <ion-label position="stacked"
-            >Peso total del envase ({{ etiquetaBase() }})</ion-label
-          >
-          <ion-input
-            type="number"
-            step="0.1"
-            [value]="totalGramosTexto()"
-            (ionInput)="actualizarTexto(totalGramosTexto, $event.detail.value)"
-          ></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="stacked">Número de unidades</ion-label>
-          <ion-input
-            type="number"
-            [value]="numeroUnidadesTexto()"
-            (ionInput)="
-              actualizarTexto(numeroUnidadesTexto, $event.detail.value)
-            "
-          ></ion-input>
-        </ion-item>
-        <p>
-          {{ totalGramosTexto() || "?" }} {{ etiquetaBase() }} ÷
-          {{ numeroUnidadesTexto() || "?" }} unidades =
-          {{ gramosPorUnidadCalculados() | number: "1.0-2" }}
-          {{ etiquetaBase() }}
-        </p>
-      }
+        </div>
+      </div>
 
-      <p>Pon el peso de la parte comestible (sin piel, cáscara ni hueso).</p>
       @if (tieneUnidad()) {
-        <p>
-          El cambio solo afecta a los registros que hagas a partir de ahora.
+        <div class="segmento" role="radiogroup" aria-label="Unidad">
+          <button
+            type="button"
+            role="radio"
+            [class.sel]="modo() === 'base'"
+            [attr.aria-checked]="modo() === 'base'"
+            (click)="seleccionarModo('base')"
+          >
+            {{ etiquetaBase() }}
+          </button>
+          <button
+            type="button"
+            role="radio"
+            [class.sel]="modo() === 'unidad'"
+            [attr.aria-checked]="modo() === 'unidad'"
+            (click)="seleccionarModo('unidad')"
+          >
+            {{ a.nombreUnidad }}
+          </button>
+        </div>
+
+        @if (modo() === "unidad") {
+          <p class="etiqueta">
+            = {{ gramos() | number: "1.0-1" }} {{ etiquetaBase() }}
+          </p>
+        }
+      }
+
+      @if (!definiendoUnidad()) {
+        <ion-button expand="block" fill="outline" (click)="abrirDefinicion()">
+          {{ tieneUnidad() ? "Cambiar unidad" : "Definir unidad" }}
+        </ion-button>
+      } @else {
+        <section class="tarjeta bloque">
+          <h2 class="titulo-seccion">
+            {{ tieneUnidad() ? "Cambiar unidad" : "Definir unidad" }}
+          </h2>
+
+          <div class="campo">
+            <span class="campo-etiqueta"
+              >Nombre de la unidad (loncha, cucharada, taza…)</span
+            >
+            <div class="campo-caja">
+              <ion-input
+                aria-label="Nombre de la unidad"
+                [value]="nombreUnidadTexto()"
+                (ionInput)="
+                  actualizarTexto(nombreUnidadTexto, $event.detail.value)
+                "
+              ></ion-input>
+            </div>
+          </div>
+
+          <div class="segmento" role="radiogroup" aria-label="Método">
+            <button
+              type="button"
+              role="radio"
+              [class.sel]="metodoUnidad() === 'directo'"
+              [attr.aria-checked]="metodoUnidad() === 'directo'"
+              (click)="metodoUnidad.set('directo')"
+            >
+              Lo sé
+            </button>
+            <button
+              type="button"
+              role="radio"
+              [class.sel]="metodoUnidad() === 'calculo'"
+              [attr.aria-checked]="metodoUnidad() === 'calculo'"
+              (click)="metodoUnidad.set('calculo')"
+            >
+              Calcularlo
+            </button>
+          </div>
+
+          @if (metodoUnidad() === "directo") {
+            <div class="campo">
+              <span class="campo-etiqueta">Peso de una unidad</span>
+              <div class="campo-caja">
+                <ion-input
+                  type="number"
+                  inputmode="decimal"
+                  step="0.1"
+                  aria-label="Peso de una unidad"
+                  [value]="gramosUnidadTexto()"
+                  (ionInput)="
+                    actualizarTexto(gramosUnidadTexto, $event.detail.value)
+                  "
+                ></ion-input>
+                <span class="unidad">{{ etiquetaBase() }}</span>
+              </div>
+            </div>
+          } @else {
+            <div class="fila-campos">
+              <div class="campo">
+                <span class="campo-etiqueta">Peso del envase</span>
+                <div class="campo-caja">
+                  <ion-input
+                    type="number"
+                    inputmode="decimal"
+                    step="0.1"
+                    aria-label="Peso total del envase"
+                    [value]="totalGramosTexto()"
+                    (ionInput)="
+                      actualizarTexto(totalGramosTexto, $event.detail.value)
+                    "
+                  ></ion-input>
+                  <span class="unidad">{{ etiquetaBase() }}</span>
+                </div>
+              </div>
+              <div class="campo">
+                <span class="campo-etiqueta">Unidades</span>
+                <div class="campo-caja">
+                  <ion-input
+                    type="number"
+                    inputmode="numeric"
+                    aria-label="Número de unidades"
+                    [value]="numeroUnidadesTexto()"
+                    (ionInput)="
+                      actualizarTexto(numeroUnidadesTexto, $event.detail.value)
+                    "
+                  ></ion-input>
+                </div>
+              </div>
+            </div>
+            <p class="cuerpo-fuerte">
+              {{ totalGramosTexto() || "?" }} {{ etiquetaBase() }} ÷
+              {{ numeroUnidadesTexto() || "?" }} unidades =
+              {{ gramosPorUnidadCalculados() | number: "1.0-2" }}
+              {{ etiquetaBase() }}
+            </p>
+          }
+
+          <p class="etiqueta">
+            Pon el peso de la parte comestible (sin piel, cáscara ni hueso).
+          </p>
+          @if (tieneUnidad()) {
+            <p class="etiqueta">
+              El cambio solo afecta a los registros que hagas a partir de ahora.
+            </p>
+          }
+          @if (mensaje()) {
+            <p class="etiqueta">{{ mensaje() }}</p>
+          }
+
+          <div class="fila botones">
+            <ion-button fill="outline" (click)="cancelarDefinicion()"
+              >Cancelar</ion-button
+            >
+            <ion-button [disabled]="!unidadValida()" (click)="guardarUnidad()"
+              >Guardar unidad</ion-button
+            >
+          </div>
+        </section>
+      }
+
+      <div class="campo">
+        <span class="campo-etiqueta">Tipo de comida</span>
+        <div class="campo-caja">
+          <ion-select
+            aria-label="Tipo de comida"
+            interface="popover"
+            [value]="tipoComida()"
+            (ionChange)="tipoComida.set($event.detail.value)"
+          >
+            <ion-select-option value="desayuno">Desayuno</ion-select-option>
+            <ion-select-option value="almuerzo">Almuerzo</ion-select-option>
+            <ion-select-option value="comida">Comida</ion-select-option>
+            <ion-select-option value="merienda">Merienda</ion-select-option>
+            <ion-select-option value="cena">Cena</ion-select-option>
+            <ion-select-option value="otro">Otro</ion-select-option>
+          </ion-select>
+        </div>
+      </div>
+
+      <section class="tarjeta bloque">
+        <p class="etiqueta">
+          Ración · {{ gramos() | number: "1.0-1" }} {{ etiquetaBase() }}
         </p>
-      }
+        <p class="cifra-media">{{ kcalRacion() | number: "1.0-0" }} kcal</p>
+        <div class="macros-tres">
+          <div class="macro-col">
+            <span class="etiqueta"
+              ><i class="punto proteina"></i> Proteína</span
+            >
+            <span class="cuerpo-fuerte"
+              >{{ proteinaRacion() | number: "1.0-1" }} g</span
+            >
+          </div>
+          <div class="macro-col">
+            <span class="etiqueta"><i class="punto grasa"></i> Grasa</span>
+            <span class="cuerpo-fuerte"
+              >{{ grasasRacion() | number: "1.0-1" }} g</span
+            >
+          </div>
+          <div class="macro-col">
+            <span class="etiqueta"
+              ><i class="punto carbohidrato"></i> Hidratos</span
+            >
+            <span class="cuerpo-fuerte"
+              >{{ carbohidratosRacion() | number: "1.0-1" }} g</span
+            >
+          </div>
+        </div>
+      </section>
 
-      <ion-button fill="outline" (click)="cancelarDefinicion()"
-        >Cancelar</ion-button
-      >
-      <ion-button [disabled]="!unidadValida()" (click)="guardarUnidad()"
-        >Guardar unidad</ion-button
-      >
-      @if (mensaje()) {
-        <p>{{ mensaje() }}</p>
-      }
-    }
-
-    <ion-item>
-      <ion-label position="stacked">Tipo de comida</ion-label>
-      <ion-select
-        [value]="tipoComida()"
-        (ionChange)="tipoComida.set($event.detail.value)"
-      >
-        <ion-select-option value="desayuno">Desayuno</ion-select-option>
-        <ion-select-option value="almuerzo">Almuerzo</ion-select-option>
-        <ion-select-option value="comida">Comida</ion-select-option>
-        <ion-select-option value="merienda">Merienda</ion-select-option>
-        <ion-select-option value="cena">Cena</ion-select-option>
-        <ion-select-option value="otro">Otro</ion-select-option>
-      </ion-select>
-    </ion-item>
-    <p>
-      Ración ({{ gramos() | number: "1.0-1" }} {{ etiquetaBase() }}):
-      {{ kcalRacion() | number: "1.0-0" }} kcal ·
-      {{ proteinaRacion() | number: "1.0-1" }} g proteína ·
-      {{ grasasRacion() | number: "1.0-1" }} g grasa ·
-      {{ carbohidratosRacion() | number: "1.0-1" }} g hidratos
-    </p>
-
-    <ion-button expand="block" (click)="guardar()"> Guardar</ion-button>
+      <ion-button expand="block" (click)="guardar()">Guardar</ion-button>
+    </div>
   } @else {
-    <p>Cargando...</p>
+    <p class="etiqueta">Cargando...</p>
   }
 </ion-content>

@@ -1,155 +1,189 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/ajustes"
+        text=""
+        aria-label="Volver"
+      ></ion-back-button>
+    </ion-buttons>
     <ion-title>Editar perfil</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  @if (perfil() === null) {
-    <p>No hay ningún perfil activo.</p>
-  } @else {
-    <ion-list>
-      <ion-item>
-        <ion-label position="stacked">Nombre</ion-label>
-        <ion-input
-          [ngModel]="nombre()"
-          (ngModelChange)="nombre.set(aTexto($event))"
-        ></ion-input>
-      </ion-item>
+  <div class="pagina">
+    @if (perfil() === null) {
+      <p class="etiqueta">No hay ningún perfil activo.</p>
+    } @else {
+      <div class="campo">
+        <span class="campo-etiqueta">Nombre</span>
+        <div class="campo-caja">
+          <ion-input
+            aria-label="Nombre"
+            [ngModel]="nombre()"
+            (ngModelChange)="nombre.set(aTexto($event))"
+          ></ion-input>
+        </div>
+      </div>
 
-      <ion-item>
-        <ion-label position="stacked">Sexo</ion-label>
-        <ion-select [ngModel]="sexo()" (ngModelChange)="sexo.set($event)">
-          <ion-select-option value="hombre">Hombre</ion-select-option>
-          <ion-select-option value="mujer">Mujer</ion-select-option>
-        </ion-select>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Fecha de nacimiento</ion-label>
-        <ion-input
-          type="date"
-          [ngModel]="fechaNacimiento()"
-          (ngModelChange)="fechaNacimiento.set(aTexto($event))"
-        ></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Altura (cm)</ion-label>
-        <ion-input
-          type="number"
-          [ngModel]="alturaCmTexto()"
-          (ngModelChange)="alturaCmTexto.set(aTexto($event))"
-        ></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Nivel de actividad</ion-label>
-        <ion-select
-          [ngModel]="nivelActividad()"
-          (ngModelChange)="nivelActividad.set($event)"
-        >
-          <ion-select-option value="sedentario">Sedentario</ion-select-option>
-          <ion-select-option value="ligero">Ligero</ion-select-option>
-          <ion-select-option value="moderado">Moderado</ion-select-option>
-          <ion-select-option value="alto">Alto</ion-select-option>
-          <ion-select-option value="muy_alto">Muy alto</ion-select-option>
-        </ion-select>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Objetivo</ion-label>
-        <ion-select
-          [ngModel]="objetivo()"
-          (ngModelChange)="objetivo.set($event)"
-        >
-          <ion-select-option value="ganar_masa">Ganar masa</ion-select-option>
-          <ion-select-option value="perder_grasa"
-            >Perder grasa</ion-select-option
+      <div class="campo">
+        <span class="campo-etiqueta">Sexo</span>
+        <div class="campo-caja">
+          <ion-select
+            aria-label="Sexo"
+            interface="popover"
+            [ngModel]="sexo()"
+            (ngModelChange)="sexo.set($event)"
           >
-          <ion-select-option value="recomposicion"
-            >Recomposición</ion-select-option
+            <ion-select-option value="hombre">Hombre</ion-select-option>
+            <ion-select-option value="mujer">Mujer</ion-select-option>
+          </ion-select>
+        </div>
+      </div>
+
+      <div class="campo">
+        <span class="campo-etiqueta">Fecha de nacimiento</span>
+        <div class="campo-caja">
+          <ion-input
+            type="date"
+            aria-label="Fecha de nacimiento"
+            [ngModel]="fechaNacimiento()"
+            (ngModelChange)="fechaNacimiento.set(aTexto($event))"
+          ></ion-input>
+        </div>
+      </div>
+
+      <div class="campo">
+        <span class="campo-etiqueta">Altura</span>
+        <div class="campo-caja">
+          <ion-input
+            type="number"
+            inputmode="numeric"
+            aria-label="Altura en centímetros"
+            [ngModel]="alturaCmTexto()"
+            (ngModelChange)="alturaCmTexto.set(aTexto($event))"
+          ></ion-input>
+          <span class="unidad">cm</span>
+        </div>
+      </div>
+
+      <app-selector-actividad [(valor)]="nivelActividad" />
+
+      <div class="campo">
+        <span class="campo-etiqueta">Objetivo</span>
+        <div class="campo-caja">
+          <ion-select
+            aria-label="Objetivo"
+            interface="popover"
+            [ngModel]="objetivo()"
+            (ngModelChange)="objetivo.set($event)"
           >
-        </ion-select>
-      </ion-item>
+            <ion-select-option value="ganar_masa">Ganar masa</ion-select-option>
+            <ion-select-option value="perder_grasa"
+              >Perder grasa</ion-select-option
+            >
+            <ion-select-option value="recomposicion"
+              >Recomposición</ion-select-option
+            >
+          </ion-select>
+        </div>
+      </div>
 
       @if (objetivo() !== "recomposicion") {
-        <ion-item>
-          <ion-label position="stacked">Ritmo semanal (kg)</ion-label>
-          <ion-input
-            type="number"
-            step="0.1"
-            [ngModel]="ritmoSemanalKgTexto()"
-            (ngModelChange)="ritmoSemanalKgTexto.set(aTexto($event))"
-          ></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">Peso objetivo (kg, opcional)</ion-label>
-          <ion-input
-            type="number"
-            [ngModel]="pesoObjetivoKgTexto()"
-            (ngModelChange)="pesoObjetivoKgTexto.set(aTexto($event))"
-          ></ion-input>
-        </ion-item>
+        <div class="fila-campos">
+          <div class="campo">
+            <span class="campo-etiqueta">Ritmo semanal</span>
+            <div class="campo-caja">
+              <ion-input
+                type="number"
+                inputmode="decimal"
+                step="0.1"
+                aria-label="Ritmo semanal en kilos"
+                [ngModel]="ritmoSemanalKgTexto()"
+                (ngModelChange)="ritmoSemanalKgTexto.set(aTexto($event))"
+              ></ion-input>
+              <span class="unidad">kg</span>
+            </div>
+          </div>
+          <div class="campo">
+            <span class="campo-etiqueta">Peso objetivo (opcional)</span>
+            <div class="campo-caja">
+              <ion-input
+                type="number"
+                inputmode="decimal"
+                aria-label="Peso objetivo en kilos"
+                [ngModel]="pesoObjetivoKgTexto()"
+                (ngModelChange)="pesoObjetivoKgTexto.set(aTexto($event))"
+              ></ion-input>
+              <span class="unidad">kg</span>
+            </div>
+          </div>
+        </div>
       }
-    </ion-list>
 
-    @if (pesoActualKg(); as peso) {
-      <p class="discreto cifras">
-        Peso actual: {{ peso | number: "1.0-1" }} kg. Se cambia desde Progreso.
-      </p>
-    } @else {
-      <p class="discreto">
-        Aún no hay peso registrado: añádelo en Progreso para calcular tu
-        objetivo.
-      </p>
-    }
-
-    @for (error of errores(); track error) {
-      <p>{{ error }}</p>
-    }
-
-    @if (resultado(); as r) {
-      @if (r.calculado) {
-        <h3>Tu objetivo con estos datos</h3>
-        <p>
-          <strong
-            >{{ r.objetivo.kcalObjetivo | number: "1.0-0" }} kcal al día</strong
-          >
+      @if (pesoActualKg(); as peso) {
+        <p class="etiqueta">
+          Peso actual: {{ peso | number: "1.0-1" }} kg. Se cambia desde
+          Progreso.
         </p>
-        <p class="cifras">
-          {{ r.objetivo.proteinaG | number: "1.0-0" }} g proteína ·
-          {{ r.objetivo.grasaG | number: "1.0-0" }} g grasa ·
-          {{ r.objetivo.carbohidratoG | number: "1.0-0" }} g hidratos
-        </p>
-        @if (r.objetivo.limiteAplicado !== "ninguno") {
-          <p class="discreto">
-            Se ha ajustado tu objetivo por seguridad:
-            {{ textoLimite(r.objetivo.limiteAplicado) }}.
-          </p>
-        }
       } @else {
-        <p>
-          No se puede fijar «perder grasa» con tu IMC actual. Elige otro
+        <p class="etiqueta">
+          Aún no hay peso registrado: añádelo en Progreso para calcular tu
           objetivo.
         </p>
       }
+
+      @for (error of errores(); track error) {
+        <p class="etiqueta">{{ error }}</p>
+      }
+
+      @if (resultado(); as r) {
+        <section class="tarjeta bloque">
+          @if (r.calculado) {
+            <h2 class="cuerpo-fuerte">Tu objetivo con estos datos</h2>
+            <p class="cifra-media">
+              {{ r.objetivo.kcalObjetivo | number: "1.0-0" }} kcal al día
+            </p>
+            <p class="etiqueta">
+              {{ r.objetivo.proteinaG | number: "1.0-0" }} g proteína ·
+              {{ r.objetivo.grasaG | number: "1.0-0" }} g grasa ·
+              {{ r.objetivo.carbohidratoG | number: "1.0-0" }} g hidratos
+            </p>
+            @if (r.objetivo.limiteAplicado !== "ninguno") {
+              <p class="etiqueta">
+                Se ha ajustado tu objetivo por seguridad:
+                {{ textoLimite(r.objetivo.limiteAplicado) }}.
+              </p>
+            }
+          } @else {
+            <p class="cuerpo-fuerte">
+              No se puede fijar «perder grasa» con tu IMC actual. Elige otro
+              objetivo.
+            </p>
+          }
+        </section>
+      }
+
+      <p class="etiqueta">
+        Los cambios se aplican desde ahora; tu historial no se modifica.
+      </p>
+
+      <div class="acciones">
+        <ion-button
+          expand="block"
+          [disabled]="!puedeGuardar()"
+          (click)="guardar()"
+          >Guardar</ion-button
+        >
+        <ion-button expand="block" fill="outline" (click)="cancelar()"
+          >Cancelar</ion-button
+        >
+      </div>
+
+      @if (mensaje()) {
+        <p class="etiqueta">{{ mensaje() }}</p>
+      }
     }
-
-    <p class="discreto">
-      Los cambios se aplican desde ahora; tu historial no se modifica.
-    </p>
-
-    <ion-button expand="block" [disabled]="!puedeGuardar()" (click)="guardar()"
-      >Guardar</ion-button
-    >
-    <ion-button expand="block" fill="outline" (click)="cancelar()"
-      >Cancelar</ion-button
-    >
-
-    @if (mensaje()) {
-      <p>{{ mensaje() }}</p>
-    }
-  }
+  </div>
 </ion-content>

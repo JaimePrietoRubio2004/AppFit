@@ -8,12 +8,12 @@ import {
   IonContent,
   IonButton,
   IonProgressBar,
+  IonIcon,
   ViewWillEnter,
-  IonList,
-  IonItem,
-  IonLabel,
   AlertController,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { trashOutline } from 'ionicons/icons';
 import { ObjetivoPerfil } from '../../nucleo/servicios/objetivo-perfil';
 import { ObjetivoCalculado } from '../../nucleo/servicios/calculo-objetivo';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
@@ -44,9 +44,7 @@ import {
     RouterLink,
     DecimalPipe,
     IonProgressBar,
-    IonList,
-    IonItem,
-    IonLabel,
+    IonIcon,
   ],
 })
 export class InicioComponent implements OnInit, ViewWillEnter {
@@ -61,6 +59,7 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   private readonly alertController = inject(AlertController);
 
   constructor() {
+    addIcons({ trashOutline });
     this.router.events
       .pipe(
         filter(
@@ -74,7 +73,8 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   }
 
   protected readonly objetivo = signal<ObjetivoCalculado | null>(null);
-  protected readonly textoPerfil = signal('cargando...');
+  protected readonly inicialPerfil = signal('');
+  protected readonly colorPerfil = signal('');
   protected readonly totalKcal = signal(0);
   protected readonly totalProteina = signal(0);
   protected readonly totalGrasa = signal(0);
@@ -101,12 +101,40 @@ export class InicioComponent implements OnInit, ViewWillEnter {
     return objetivo ? Math.min(this.totalKcal() / objetivo.kcalObjetivo, 1) : 0;
   });
 
+  protected readonly macros = computed(() => {
+    const objetivo = this.objetivo();
+    if (!objetivo) {
+      return [];
+    }
+    return [
+      {
+        clave: 'proteina',
+        nombre: 'Proteína',
+        total: this.totalProteina(),
+        objetivo: objetivo.proteinaG,
+      },
+      {
+        clave: 'grasa',
+        nombre: 'Grasa',
+        total: this.totalGrasa(),
+        objetivo: objetivo.grasaG,
+      },
+      {
+        clave: 'carbohidrato',
+        nombre: 'Hidratos',
+        total: this.totalCarbohidrato(),
+        objetivo: objetivo.carbohidratoG,
+      },
+    ];
+  });
+
   private async cargar() {
     const actual = await this.perfilRepository.obtenerUltimoUsado();
     if (!actual) {
       return;
     }
-    this.textoPerfil.set(`${actual.nombre}`);
+    this.inicialPerfil.set(actual.nombre.charAt(0).toUpperCase());
+    this.colorPerfil.set(actual.colorAvatar);
     this.objetivo.set(await this.objetivoPerfil.obtener(actual));
 
     const hoy = fechaLocal();
@@ -133,6 +161,10 @@ export class InicioComponent implements OnInit, ViewWillEnter {
   protected nuevaPlantilla(): void {
     this.insertarComida.proponerPlantillaNueva();
     this.router.navigate(['/insertar-comida']);
+  }
+
+  protected fraccion(total: number, objetivo: number): number {
+    return objetivo > 0 ? Math.min(total / objetivo, 1) : 0;
   }
 
   protected kcalDe(grupo: GrupoComida): number {
