@@ -122,6 +122,18 @@ export class BaseDatos {
     return this.conexionPromesa;
   }
 
+  async cerrar(): Promise<void> {
+    if (!this.conexionPromesa) {
+      return;
+    }
+    this.conexionPromesa = null;
+    try {
+      await this.sqlite.closeConnection(NOMBRE_DB, false);
+    } catch {
+      // Ya estaba cerrada
+    }
+  }
+
   private async crearConexion(): Promise<SQLiteDBConnection> {
     if (Capacitor.getPlatform() === 'web') {
       await this.asegurarWebStore();
@@ -136,7 +148,10 @@ export class BaseDatos {
           VERSION_ESQUEMA,
           false,
         );
-    await conexion.open();
+    // Tras recargar la página, la conexión nativa puede seguir abierta
+    if (!(await conexion.isDBOpen()).result) {
+      await conexion.open();
+    }
     await conexion.execute(ESQUEMA, true, false);
     await this.migrar(conexion);
     return conexion;

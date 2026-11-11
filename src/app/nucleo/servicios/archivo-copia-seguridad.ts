@@ -20,7 +20,7 @@ export class ArchivoCopiaSeguridad {
     try {
       const copia = await this.repositorio.exportar();
       const contenido = JSON.stringify(copia);
-      const nombre = `appfit-copia-${fechaLocal()}.json`;
+      const nombre = `forjafit-copia-${fechaLocal()}.json`;
       if (!Capacitor.isNativePlatform()) {
         this.descargar(nombre, contenido);
         return { estado: 'ok' };
@@ -32,7 +32,7 @@ export class ArchivoCopiaSeguridad {
         encoding: Encoding.UTF8,
       });
       await Share.share({
-        title: 'Copia de seguridad AppFit',
+        title: 'Copia de seguridad ForjaFit',
         dialogTitle: 'Guardar copia de seguridad',
         files: [escrito.uri],
       });

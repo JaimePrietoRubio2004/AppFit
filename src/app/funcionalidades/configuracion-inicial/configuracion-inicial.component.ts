@@ -50,7 +50,7 @@ const OBJETIVOS: {
 
 const TEXTOS_PASO = {
   1: {
-    titulo: 'Bienvenido a AppFit',
+    titulo: 'Bienvenido a ForjaFit',
     subtitulo: 'Cuéntanos sobre ti para calcular tu objetivo.',
   },
   2: { titulo: 'Tu objetivo', subtitulo: 'Elige qué quieres conseguir.' },

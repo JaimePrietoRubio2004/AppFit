@@ -7,6 +7,7 @@ import {
   IonButton,
   IonIcon,
   AlertController,
+  LoadingController,
   ViewWillEnter,
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -20,7 +21,6 @@ import {
   PreferenciaApariencia,
 } from '../../nucleo/servicios/apariencia';
 import { PERFIL_REPOSITORY } from '../../nucleo/repositorios/perfil.repository';
-import { ToastController } from '@ionic/angular';
 import { COPIA_SEGURIDAD_REPOSITORY } from '../../nucleo/repositorios/copia-seguridad.repository';
 import { CopiaSeguridad } from '../../nucleo/modelos/copia-seguridad.model';
 import { ArchivoCopiaSeguridad } from '../../nucleo/servicios/archivo-copia-seguridad';
@@ -60,7 +60,7 @@ export class AjustesComponent implements OnInit, ViewWillEnter {
   private readonly router = inject(Router);
   private readonly archivoCopia = inject(ArchivoCopiaSeguridad);
   private readonly copiaRepository = inject(COPIA_SEGURIDAD_REPOSITORY);
-  private readonly toastController = inject(ToastController);
+  private readonly loadingController = inject(LoadingController);
   private readonly objetivoPerfil = inject(ObjetivoPerfil);
   protected readonly apariencia = inject(Apariencia);
   protected readonly opcionesApariencia = OPCIONES_APARIENCIA;
@@ -157,15 +157,15 @@ export class AjustesComponent implements OnInit, ViewWillEnter {
   }
 
   private async importarCopia(copia: CopiaSeguridad): Promise<void> {
+    const espera = await this.loadingController.create({
+      message: 'Importando copia…',
+    });
+    await espera.present();
     try {
       await this.copiaRepository.importar(copia);
-      const aviso = await this.toastController.create({
-        message: 'Copia importada.',
-        duration: 1500,
-      });
-      await aviso.present();
       window.location.assign('/');
     } catch (error) {
+      await espera.dismiss();
       this.mensaje.set(
         `No se pudo importar; tus datos no se han modificado. Detalle: ${error}`,
       );

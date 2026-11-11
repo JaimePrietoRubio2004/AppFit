@@ -8,18 +8,18 @@ const NOMBRE_COLUMNA = /^[a-z][a-z0-9_]*$/;
 
 export function validarCopia(datos: unknown): CopiaSeguridad {
   if (typeof datos !== 'object' || datos === null) {
-    throw new Error('El archivo no es una copia de seguridad de AppFit.');
+    throw new Error('El archivo no es una copia de seguridad de ForjaFit.');
   }
   const copia = datos as Partial<CopiaSeguridad>;
   if (copia.app !== 'appfit') {
-    throw new Error('El archivo no es una copia de seguridad de AppFit.');
+    throw new Error('El archivo no es una copia de seguridad de ForjaFit.');
   }
   if (typeof copia.version !== 'number' || copia.version < 1) {
     throw new Error('La versión de la copia no es válida.');
   }
   if (copia.version > VERSION_COPIA) {
     throw new Error(
-      'La copia es de una versión más nueva de la app. Actualiza AppFit antes de importarla.',
+      'La copia es de una versión más nueva de la app. Actualiza ForjaFit antes de importarla.',
     );
   }
   if (typeof copia.tablas !== 'object' || copia.tablas === null) {

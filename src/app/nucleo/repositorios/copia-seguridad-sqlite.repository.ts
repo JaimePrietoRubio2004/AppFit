@@ -53,5 +53,7 @@ export class CopiaSeguridadSqlite implements CopiaSeguridadRepository {
       });
     }
     await db.executeSet(sentencias, true, 'no', false);
+    // La conexión se cierra para que el siguiente arranque lea los datos nuevos
+    await this.baseDatos.cerrar();
   }
 }

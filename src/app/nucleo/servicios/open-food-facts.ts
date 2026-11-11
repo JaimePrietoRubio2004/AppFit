@@ -4,7 +4,7 @@ import { kcalAlcoholDesdeGrados } from '../utilidades/alcohol';
 import type { NuevoAlimento } from '../repositorios/alimento.repository';
 
 const URL_BASE = 'https://world.openfoodfacts.org/api/v2/product';
-const AGENTES_USUARIO = 'AppFit - App personal de nutricion - Version 1.0';
+const AGENTES_USUARIO = 'ForjaFit - App personal de nutricion - Version 1.0';
 
 interface NutrientesOpenFoodFacts {
   'energy-kcal_100g'?: number;
